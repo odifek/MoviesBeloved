@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Movies Beloved</string>
+    <string name="movie_poster_img_desc">movie poster</string>
+    <string name="rating_cation">Rating:</string>
+</resources>
