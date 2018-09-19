@@ -1,6 +1,7 @@
 package com.techbeloved.moviesbeloved.models;
 
 import java.util.Date;
+import java.util.List;
 
 public class MovieImpl implements Movie {
 
@@ -9,7 +10,7 @@ public class MovieImpl implements Movie {
     private String synopsis;
     private String posterUrl;
     private String backdropUrl;
-    private String[] genres;
+    private List<String> genres;
     private float userRating;
     private Date releaseDate;
 
@@ -38,7 +39,7 @@ public class MovieImpl implements Movie {
     }
 
     @Override
-    public void setGenres(String[] genres) {
+    public void setGenres(List<String> genres) {
         this.genres = genres;
     }
 
@@ -88,7 +89,7 @@ public class MovieImpl implements Movie {
     }
 
     @Override
-    public String[] getGenres() {
+    public List<String> getGenres() {
         return this.genres;
     }
 

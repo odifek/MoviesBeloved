@@ -2,4 +2,7 @@
     <string name="app_name">Movies Beloved</string>
     <string name="movie_poster_img_desc">movie poster</string>
     <string name="rating_cation">Rating:</string>
+    <string name="filter_by">filter by</string>
+    <string name="popularity">popularity</string>
+    <string name="user_rating">user rating</string>
 </resources>

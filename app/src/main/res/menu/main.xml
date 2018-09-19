@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/filter_by"
+        android:icon="@drawable/ic_filter_list"
+        android:title="@string/filter_by"
+        app:showAsAction="ifRoom" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/popularity_item"
+                    android:title="@string/popularity"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/user_rating_item"
+                    android:title="@string/user_rating"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
+
+</menu>

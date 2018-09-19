@@ -3,6 +3,8 @@ package com.techbeloved.moviesbeloved.movies;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.techbeloved.moviesbeloved.R;
@@ -13,7 +15,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
     private List<? extends Movie> mMovieList;
     final MovieClickCallback mMovieClickCallback;
 
@@ -68,4 +70,25 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
     private Movie getItem(int position) {
         return mMovieList.get(position);
     }
+
+    class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        ImageView moviePosterImage;
+        TextView movieTitleText;
+        TextView movieRatingText;
+
+        MovieViewHolder(@NonNull View itemView) {
+            super(itemView);
+            moviePosterImage = itemView.findViewById(R.id.iv_movie_poster);
+            movieTitleText = itemView.findViewById(R.id.tv_title_movie);
+            movieRatingText = itemView.findViewById(R.id.tv_rating_value);
+
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            mMovieClickCallback.onClick(getItem(getAdapterPosition()));
+        }
+    }
+
 }

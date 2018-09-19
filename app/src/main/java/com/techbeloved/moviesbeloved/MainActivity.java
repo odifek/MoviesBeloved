@@ -1,10 +1,15 @@
 package com.techbeloved.moviesbeloved;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -13,31 +18,21 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.techbeloved.moviesbeloved.models.Movie;
-import com.techbeloved.moviesbeloved.models.MovieImpl;
+import com.techbeloved.moviesbeloved.moviedetails.MovieDetailActivity;
 import com.techbeloved.moviesbeloved.movies.MovieAdapter;
 import com.techbeloved.moviesbeloved.movies.MovieClickCallback;
+import com.techbeloved.moviesbeloved.utils.MovieUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
+
+import static com.techbeloved.moviesbeloved.utils.Constants.*;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final String TMDB_IMAGE_BASE_URL = "http://image.tmdb.org/t/p/";
-    private static final String TMDB_API_BASE_URL = "https://api.themoviedb.org/3/";
-    private static final String DEFAULT_POSTER_SIZE = "w185";
-    private static final String TMDB_API_KEY = "b8eb7211b6e1882884bdf92f1d94961a";
-    private static final String POPULAR_PATH_SEG = "popular";
-    private static final String PAGE_QUERY_PARAM = "page";
-    private static final String API_KEY_QUERY_PARAM = "api_key";
-    private static final String MOVIE_PATH_SEG = "movie";
 
     private MovieAdapter mMoviesAdapter;
 
@@ -46,54 +41,41 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(R.string.app_name);
+
         RecyclerView mRecyclerView = findViewById(R.id.movie_list);
 
         mMoviesAdapter = new MovieAdapter(new MovieClickCallback() {
             @Override
             public void onClick(Movie movie) {
                 // TODO: handle click events here
+
+                Intent movieIntent = new Intent(MainActivity.this, MovieDetailActivity.class);
+                movieIntent.putExtra(MOVIE_ID, movie.getId());
+                startActivity(movieIntent);
             }
         });
         mRecyclerView.setAdapter(mMoviesAdapter);
 
-        getPopularMovies(1);
+        getPopularMovies(2);
     }
 
-    private Movie createMovieModel(JSONObject jsonMovie) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return true;
+    }
 
-        try {
-            String title = jsonMovie.getString("title");
-            int id = jsonMovie.getInt("id");
-            float rating = (float) jsonMovie.getDouble("vote_average");
-            String posterPath = jsonMovie.getString("poster_path");
-            String synopsis = jsonMovie.getString("overview");
-            String releaseDateString = jsonMovie.getString("release_date");
-
-            Date releaseDate = new SimpleDateFormat("dd-MM-yyyy",
-                    Locale.getDefault()).parse(releaseDateString);
-            Movie movieInfo = new MovieImpl(id, title);
-            movieInfo.setPosterUrl(buildPosterUrl(posterPath));
-            movieInfo.setSynopsis(synopsis);
-            movieInfo.setReleaseDate(releaseDate);
-            movieInfo.setUserRating(rating);
-
-            return movieInfo;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+//            case R.id.popularity_item
         }
-
-        return null;
+        return super.onOptionsItemSelected(item);
     }
-
-    private String buildPosterUrl(String posterPath) {
-        Uri.Builder uriBuilder = Uri.parse(TMDB_IMAGE_BASE_URL).buildUpon();
-        uriBuilder.appendPath(DEFAULT_POSTER_SIZE)
-                .appendEncodedPath(posterPath);
-        return uriBuilder.build().toString();
-    }
-
 
     private void getPopularMovies(int page) {
         Uri.Builder builder = Uri.parse(TMDB_API_BASE_URL).buildUpon();
@@ -114,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                     JSONArray resultsArray = response.getJSONArray("results");
                     for (int i = 0; i < resultsArray.length(); i++) {
                         JSONObject jsonMovie = resultsArray.getJSONObject(i);
-                        Movie movieInfo = createMovieModel(jsonMovie);
+                        Movie movieInfo = MovieUtils.createMovieModel(jsonMovie);
                         if (movieInfo != null) {
                             movieList.add(movieInfo);
                         }

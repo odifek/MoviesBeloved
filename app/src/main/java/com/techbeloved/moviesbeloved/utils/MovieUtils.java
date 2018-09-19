@@ -1,0 +1,87 @@
+package com.techbeloved.moviesbeloved.utils;
+
+import android.net.Uri;
+import android.text.TextUtils;
+
+import com.techbeloved.moviesbeloved.models.Movie;
+import com.techbeloved.moviesbeloved.models.MovieImpl;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import static com.techbeloved.moviesbeloved.utils.Constants.*;
+
+public class MovieUtils {
+
+    /**
+     * Create a {@link Movie} model using JSON object received from volley
+     * @param jsonMovie is the json object received from volley
+     * @return a {@link Movie} object
+     */
+    public static Movie createMovieModel(JSONObject jsonMovie) {
+
+        try {
+            String title = jsonMovie.getString("title");
+            int id = jsonMovie.getInt("id");
+            float rating = (float) jsonMovie.getDouble("vote_average");
+            String posterPath = jsonMovie.getString("poster_path");
+            String synopsis = jsonMovie.getString("overview");
+            String releaseDateString = jsonMovie.getString("release_date");
+
+            String backdropPath = jsonMovie.optString("backdrop_path");
+            String originalTitle = jsonMovie.optString("original_title");
+            JSONArray genresJsonArray = jsonMovie.optJSONArray("genres");
+
+            List<String> genreList = new ArrayList<>();
+            if (genresJsonArray != null) {
+                for (int i = 0; i < genresJsonArray.length(); i++) {
+                    genreList.add(genresJsonArray.getJSONObject(i).optString("name"));
+                }
+            }
+
+            Date releaseDate = new SimpleDateFormat("dd-MM-yyyy",
+                    Locale.getDefault()).parse(releaseDateString);
+            Movie movieInfo = new MovieImpl(id, title);
+            movieInfo.setPosterUrl(buildImageUrl(posterPath, DEFAULT_POSTER_SIZE));
+            movieInfo.setSynopsis(synopsis);
+            movieInfo.setReleaseDate(releaseDate);
+            movieInfo.setUserRating(rating);
+
+            if (!TextUtils.isEmpty(backdropPath)) {
+                movieInfo.setBackdropUrl(buildImageUrl(backdropPath, DEFAULT_BACKDROP_SIZE));
+            }
+            if (!genreList.isEmpty()) {
+                movieInfo.setGenres(genreList);
+            }
+
+            return movieInfo;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private static String buildImageUrl(String imagePath, String imageSize) {
+        Uri.Builder uriBuilder = Uri.parse(TMDB_IMAGE_BASE_URL).buildUpon();
+        uriBuilder.appendPath(imageSize)
+                .appendEncodedPath(imagePath);
+        return uriBuilder.build().toString();
+    }
+
+    public static String getYearFromDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        return String.valueOf(calendar.get(Calendar.YEAR));
+    }
+}
