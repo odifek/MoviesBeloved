@@ -2,6 +2,8 @@ package com.techbeloved.moviesbeloved.utils;
 
 import android.net.Uri;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
+import android.util.TimeUtils;
 
 import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import static com.techbeloved.moviesbeloved.utils.Constants.*;
 
