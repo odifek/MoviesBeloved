@@ -16,20 +16,20 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
-    private List<? extends Movie> mMovieList;
+    private List<Movie> mMovieList;
     final MovieClickCallback mMovieClickCallback;
 
     public MovieAdapter(MovieClickCallback clickCallback) {
         this.mMovieClickCallback = clickCallback;
     }
 
-    public void setMovieList(final List<? extends Movie> movieList) {
+    public void setMovieList(final List<Movie> movieList) {
         if (mMovieList == null) {
             mMovieList = movieList;
             notifyItemRangeInserted(0, movieList.size());
         } else {
-            mMovieList = movieList;
-            notifyDataSetChanged();
+            mMovieList.addAll(movieList);
+            notifyItemRangeInserted(mMovieList.size(), movieList.size());
         }
     }
 
@@ -69,6 +69,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     private Movie getItem(int position) {
         return mMovieList.get(position);
+    }
+
+    public void clear() {
+        mMovieList.clear();
+        notifyDataSetChanged();
     }
 
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

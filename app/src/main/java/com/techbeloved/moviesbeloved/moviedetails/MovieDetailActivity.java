@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -35,6 +36,8 @@ import static com.techbeloved.moviesbeloved.utils.Constants.TMDB_API_KEY;
 import static com.techbeloved.moviesbeloved.utils.MovieUtils.getYearFromDate;
 
 public class MovieDetailActivity extends AppCompatActivity {
+
+    private static final String TAG = MovieDetailActivity.class.getSimpleName();
 
     private int mCurrentMovieId;
 
@@ -92,6 +95,9 @@ public class MovieDetailActivity extends AppCompatActivity {
         mSynopsisText = findViewById(R.id.synopsis_text);
         mRatingBar = findViewById(R.id.ratingBar);
         mYearText = findViewById(R.id.release_year_text);
+        mRatingBar.setMax(5);
+        mRatingBar.setStepSize(0.5f);
+
     }
 
     private void displayMovieInfo(Movie movieInfo) {
@@ -100,9 +106,11 @@ public class MovieDetailActivity extends AppCompatActivity {
         mCollapsingToolbar.setTitle(movieInfo.getTitle());
 
         String year = getYearFromDate(movieInfo.getReleaseDate());
+        Log.i(TAG, "displayMovieInfo: year:  " + year);
         mYearText.setText(year);
 
         mRatingText.setText(String.valueOf(movieInfo.getUserRating()));
+        mRatingBar.setRating(movieInfo.getUserRating() / 2);
 
         if (!TextUtils.isEmpty(movieInfo.getBackdropUrl())) {
             Glide.with(mBackdropImage.getContext())

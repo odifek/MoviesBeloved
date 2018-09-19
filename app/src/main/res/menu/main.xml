@@ -12,7 +12,8 @@
                 <item
                     android:id="@+id/popularity_item"
                     android:title="@string/popularity"
-                    app:showAsAction="never" />
+                    app:showAsAction="never"
+                    android:checked="true"/>
                 <item
                     android:id="@+id/user_rating_item"
                     android:title="@string/user_rating"

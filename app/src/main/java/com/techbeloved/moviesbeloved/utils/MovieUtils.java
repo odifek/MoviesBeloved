@@ -2,6 +2,8 @@ package com.techbeloved.moviesbeloved.utils;
 
 import android.net.Uri;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
+import android.util.TimeUtils;
 
 import com.techbeloved.moviesbeloved.models.Movie;
 import com.techbeloved.moviesbeloved.models.MovieImpl;
@@ -17,6 +19,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import static com.techbeloved.moviesbeloved.utils.Constants.*;
 
@@ -48,7 +51,7 @@ public class MovieUtils {
                 }
             }
 
-            Date releaseDate = new SimpleDateFormat("dd-MM-yyyy",
+            Date releaseDate = new SimpleDateFormat("yyyy-MM-dd",
                     Locale.getDefault()).parse(releaseDateString);
             Movie movieInfo = new MovieImpl(id, title);
             movieInfo.setPosterUrl(buildImageUrl(posterPath, DEFAULT_POSTER_SIZE));
@@ -80,8 +83,14 @@ public class MovieUtils {
         return uriBuilder.build().toString();
     }
 
-    public static String getYearFromDate(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        return String.valueOf(calendar.get(Calendar.YEAR));
+    public static String getYearFromDate(Date date) throws IllegalArgumentException {
+        String year = "";
+        if (date == null) {
+            throw new IllegalArgumentException("Null date!");
+        }
+
+        SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.getDefault());
+        year = yearFormat.format(date);
+        return year;
     }
 }
