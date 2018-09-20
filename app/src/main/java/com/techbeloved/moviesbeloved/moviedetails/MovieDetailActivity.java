@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -34,6 +35,8 @@ import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_PATH_SEG;
 import static com.techbeloved.moviesbeloved.utils.Constants.TMDB_API_BASE_URL;
 import static com.techbeloved.moviesbeloved.utils.Constants.TMDB_API_KEY;
 import static com.techbeloved.moviesbeloved.utils.MovieUtils.getYearFromDate;
+import static com.techbeloved.moviesbeloved.utils.ViewUtils.fadeInView;
+import static com.techbeloved.moviesbeloved.utils.ViewUtils.fadeOutView;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
@@ -49,6 +52,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     private TextView mRatingText;
     private TextView mTitleText;
     private RatingBar mRatingBar;
+    private TextView mGenreText;
 
 
     @Override
@@ -72,18 +76,20 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         loadMovieDetails(mCurrentMovieId);
 
-        AppBarLayout appBarLayout = findViewById(R.id.appbar);
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                float percentage = (appBarLayout.getTotalScrollRange() - (float)Math.abs(verticalOffset))/appBarLayout.getTotalScrollRange();
-                if (percentage < 0.3) {
-                    mPosterImage.setVisibility(View.GONE);
-                } else if (percentage > 0.7){
-                    mPosterImage.setVisibility(View.VISIBLE);
-                }
-            }
-        });
+//        AppBarLayout appBarLayout = findViewById(R.id.appbar);
+//        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+//            @Override
+//            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+//                float percentage = (appBarLayout.getTotalScrollRange() - (float)Math.abs(verticalOffset))/appBarLayout.getTotalScrollRange();
+//                if (percentage < 0.3) {
+//                    fadeOutView(mPosterImage);
+////                    mPosterImage.setVisibility(View.GONE);
+//                } else if (percentage > 0.7){
+//                    fadeInView(mPosterImage);
+////                    mPosterImage.setVisibility(View.VISIBLE);
+//                }
+//            }
+//        });
     }
 
     private void setupViews() {
@@ -95,6 +101,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         mSynopsisText = findViewById(R.id.synopsis_text);
         mRatingBar = findViewById(R.id.ratingBar);
         mYearText = findViewById(R.id.release_year_text);
+        mGenreText = findViewById(R.id.genre_text);
         mRatingBar.setMax(5);
         mRatingBar.setStepSize(0.5f);
 
@@ -111,6 +118,15 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         mRatingText.setText(String.valueOf(movieInfo.getUserRating()));
         mRatingBar.setRating(movieInfo.getUserRating() / 2);
+
+        if (!movieInfo.getGenres().isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0, j = movieInfo.getGenres().size(); i < j; i++) {
+                builder.append(movieInfo.getGenres().get(i));
+                if (i != j - 1) builder.append(" | ");
+            }
+            mGenreText.setText(builder.toString());
+        }
 
         if (!TextUtils.isEmpty(movieInfo.getBackdropUrl())) {
             Glide.with(mBackdropImage.getContext())
