@@ -19,6 +19,7 @@ import java.util.List;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import timber.log.Timber;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -99,7 +100,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
         mOnScrollListener = new EndlessScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                mPresenter.loadMoreMovies(page);
+                mPresenter.loadMoreMovies(page + 1); // The first page is actually 1 not 0, so increment to match
             }
         };
         mRecyclerView.setOnScrollListener(mOnScrollListener);
