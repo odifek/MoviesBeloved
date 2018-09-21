@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.techbeloved.moviesbeloved.R;
-import com.techbeloved.moviesbeloved.models.Movie;
+import com.techbeloved.moviesbeloved.data.models.Movie;
 
 import java.util.List;
 

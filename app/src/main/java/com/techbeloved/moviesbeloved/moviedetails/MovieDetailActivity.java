@@ -8,9 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -21,10 +19,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.techbeloved.moviesbeloved.R;
-import com.techbeloved.moviesbeloved.models.Movie;
+import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.utils.MovieUtils;
 
 import org.json.JSONObject;
@@ -35,8 +32,6 @@ import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_PATH_SEG;
 import static com.techbeloved.moviesbeloved.utils.Constants.TMDB_API_BASE_URL;
 import static com.techbeloved.moviesbeloved.utils.Constants.TMDB_API_KEY;
 import static com.techbeloved.moviesbeloved.utils.MovieUtils.getYearFromDate;
-import static com.techbeloved.moviesbeloved.utils.ViewUtils.fadeInView;
-import static com.techbeloved.moviesbeloved.utils.ViewUtils.fadeOutView;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
