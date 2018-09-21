@@ -1,14 +1,17 @@
 package com.techbeloved.moviesbeloved.movies;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
@@ -16,6 +19,7 @@ import com.techbeloved.moviesbeloved.utils.EndlessScrollListener;
 
 import java.util.List;
 
+import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,8 +40,8 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     RecyclerView.OnScrollListener mOnScrollListener;
     RecyclerView mRecyclerView;
 
-    private View mNoMoviesView;
-
+    private TextView mNoMoviesTextView;
+    private ContentLoadingProgressBar mProgressBar;
 
     public MoviesFragment() {
         // Required empty public constructor
@@ -93,6 +97,9 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
 
         // Set up movies view
 
+        mNoMoviesTextView = root.findViewById(R.id.empty_textview);
+        mProgressBar = root.findViewById(R.id.loading_progressbar);
+
         mRecyclerView = root.findViewById(R.id.movie_list);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -105,16 +112,71 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
         };
         mRecyclerView.setOnScrollListener(mOnScrollListener);
 
+        setHasOptionsMenu(true);
         return root;
     }
 
     @Override
-    public void setLoadingIndicator(boolean active) {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.movies_fragment_menu, menu);
+        // Initialise menu items
+        switch (mPresenter.getFiltering()) {
+            case TOP_RATED:
+                menu.findItem(R.id.top_rated_filter_menu).setChecked(true);
+                break;
+            case POPULAR:
+                menu.findItem(R.id.popularity_filter_menu).setChecked(true);
+                break;
+            case FAVORITES:
+                menu.findItem(R.id.favorites_filter_menu).setChecked(true);
+                break;
+        }
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.top_rated_filter_menu:
+                mPresenter.setFiltering(MovieFilterType.TOP_RATED);
+                if (!item.isChecked()) {
+                    // Only reload if the it's not the currently selected filter
+                    mAdapter.clear();
+                    mPresenter.loadMovies();
+                }
+                break;
+            case R.id.popularity_filter_menu:
+                mPresenter.setFiltering(MovieFilterType.POPULAR);
+                if (!item.isChecked()) {
+                    mAdapter.clear();
+                    mPresenter.loadMovies();
+                }
+                break;
+            case R.id.favorites_filter_menu:
+                mPresenter.setFiltering(MovieFilterType.FAVORITES);
+                if (!item.isChecked()) {
+                    Timber.i("Should reload");
+                    mAdapter.clear();
+                    mPresenter.loadMovies();
+                }
+                break;
+        }
+        // Finally check the item
+        item.setChecked(true);
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void setLoadingIndicator(boolean active) {
+        if (active) {
+            mProgressBar.show();
+        } else {
+            mProgressBar.hide();
+        }
     }
 
     @Override
     public void showMovies(List<MovieEntity> movies) {
+        mNoMoviesTextView.setVisibility(View.VISIBLE);
         mAdapter.setMovieList(movies);
     }
 
@@ -130,7 +192,8 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
 
     @Override
     public void showNoMovies() {
-
+        mNoMoviesTextView.setText("No movies to show");
+        mNoMoviesTextView.setVisibility(View.VISIBLE);
     }
 
     @Override

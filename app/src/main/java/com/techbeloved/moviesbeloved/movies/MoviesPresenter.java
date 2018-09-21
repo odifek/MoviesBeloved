@@ -22,6 +22,7 @@ public class MoviesPresenter implements MoviesContract.Presenter {
 
     private final MoviesContract.View mMoviesView;
 
+    // The default filter is most popular movies
     private MovieFilterType mCurrentFiltering = MovieFilterType.POPULAR;
 
     public MoviesPresenter(@NonNull MoviesRepository moviesRepository, @NonNull MoviesContract.View moviesView) {

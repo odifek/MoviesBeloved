@@ -10,14 +10,17 @@
         <menu>
             <group android:checkableBehavior="single">
                 <item
-                    android:id="@+id/popularity_item"
-                    android:title="@string/popularity"
+                    android:id="@+id/popularity_filter_menu"
+                    android:title="@string/popularity_filter_menu"
                     app:showAsAction="never"
                     android:checked="true"/>
                 <item
-                    android:id="@+id/user_rating_item"
+                    android:id="@+id/top_rated_filter_menu"
                     android:title="@string/user_rating"
                     app:showAsAction="never" />
+                <item android:id="@+id/favorites_filter_menu"
+                    android:title="@string/favorites_filter_menu"
+                    app:showAsAction="never"/>
             </group>
         </menu>
     </item>

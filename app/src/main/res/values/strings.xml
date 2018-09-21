@@ -3,9 +3,10 @@
     <string name="movie_poster_img_desc">movie poster</string>
     <string name="rating_cation">Rating:</string>
     <string name="filter_by">filter by</string>
-    <string name="popularity">Popular</string>
+    <string name="popularity_filter_menu">Most Popular</string>
     <string name="user_rating">Top Rated</string>
     <string name="filter_by_pref_key">filter_by</string>
     <string name="top_rated">top_rated</string>
     <string name="popular">popular</string>
+    <string name="favorites_filter_menu">My Favorites</string>
 </resources>
