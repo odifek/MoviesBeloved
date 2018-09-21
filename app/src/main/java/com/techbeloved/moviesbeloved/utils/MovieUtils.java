@@ -26,7 +26,7 @@ public class MovieUtils {
      * @param jsonMovie is the json object received from volley
      * @return a {@link Movie} object
      */
-    public static Movie createMovieModel(JSONObject jsonMovie) {
+    public static MovieEntity createMovieModel(JSONObject jsonMovie) {
 
         try {
             String title = jsonMovie.getString("title");
@@ -62,7 +62,7 @@ public class MovieUtils {
                 movieInfo.setGenres(genreList);
             }
 
-            return movieInfo;
+            return (MovieEntity) movieInfo;
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (ParseException e) {

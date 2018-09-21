@@ -2,6 +2,7 @@ package com.techbeloved.moviesbeloved.data.source.remote;
 
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.data.models.Movie;
+import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.data.source.MoviesDataSource;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
         int page = 1;
         mMovieRemoteDao.getMovies(filterType, page, new LoadMoviesCallback() {
             @Override
-            public void onMoviesLoaded(List<Movie> movies) {
+            public void onMoviesLoaded(List<MovieEntity> movies) {
                 callback.onMoviesLoaded(movies);
             }
 
@@ -48,7 +49,7 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
     public void getMovies(MovieFilterType filterType, int page, @NonNull final LoadMoviesCallback callback) {
         mMovieRemoteDao.getMovies(filterType, page, new LoadMoviesCallback() {
             @Override
-            public void onMoviesLoaded(List<Movie> movies) {
+            public void onMoviesLoaded(List<MovieEntity> movies) {
                 callback.onMoviesLoaded(movies);
             }
 
@@ -63,7 +64,7 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
     public void getMovie(int movieId, @NonNull final GetMovieCallback callback) {
         mMovieRemoteDao.getMovie(movieId, new GetMovieCallback() {
             @Override
-            public void onMovieLoaded(Movie movie) {
+            public void onMovieLoaded(MovieEntity movie) {
                 callback.onMovieLoaded(movie);
             }
 
@@ -75,7 +76,7 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
     }
 
     @Override
-    public void saveMovie(@NonNull Movie movie) {
+    public void saveMovie(@NonNull MovieEntity movie) {
         // Not used in remote server
     }
 

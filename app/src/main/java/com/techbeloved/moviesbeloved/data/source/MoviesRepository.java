@@ -1,12 +1,9 @@
 package com.techbeloved.moviesbeloved.data.source;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.data.models.Movie;
+import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +21,7 @@ public class MoviesRepository implements MoviesDataSource {
 
     private final MoviesDataSource mMoviesLocalDataSource;
 
-    Map<Integer, Movie> mCachedMovies;
+    Map<Integer, MovieEntity> mCachedMovies;
 
     boolean mCacheIsDirty = false;
 
@@ -61,7 +58,7 @@ public class MoviesRepository implements MoviesDataSource {
             case FAVORITES:
                 mMoviesLocalDataSource.getMovies(filterType, new LoadMoviesCallback() {
                     @Override
-                    public void onMoviesLoaded(List<Movie> movies) {
+                    public void onMoviesLoaded(List<MovieEntity> movies) {
                         callback.onMoviesLoaded(movies);
                     }
 
@@ -75,7 +72,7 @@ public class MoviesRepository implements MoviesDataSource {
             case TOP_RATED:
                 mMoviesRemoteDataSource.getMovies(filterType, new LoadMoviesCallback() {
                     @Override
-                    public void onMoviesLoaded(List<Movie> movies) {
+                    public void onMoviesLoaded(List<MovieEntity> movies) {
                         callback.onMoviesLoaded(movies);
                     }
 
@@ -99,7 +96,7 @@ public class MoviesRepository implements MoviesDataSource {
             case TOP_RATED:
                 mMoviesRemoteDataSource.getMovies(filterType, page, new LoadMoviesCallback() {
                     @Override
-                    public void onMoviesLoaded(List<Movie> movies) {
+                    public void onMoviesLoaded(List<MovieEntity> movies) {
                         callback.onMoviesLoaded(movies);
                     }
 
@@ -118,7 +115,7 @@ public class MoviesRepository implements MoviesDataSource {
     public void getMovie(final int movieId, @NonNull final GetMovieCallback callback) {
 
         // First check whether the requested movie is stored locally as a favorite. If not, then request from remote
-        Movie cachedMovie = getMovieWithId(movieId);
+        MovieEntity cachedMovie = getMovieWithId(movieId);
 
         // Respond immediately with cache if available
         if (cachedMovie != null) {
@@ -130,7 +127,7 @@ public class MoviesRepository implements MoviesDataSource {
 
         mMoviesLocalDataSource.getMovie(movieId, new GetMovieCallback() {
             @Override
-            public void onMovieLoaded(Movie movie) {
+            public void onMovieLoaded(MovieEntity movie) {
                 // Do in memory cache update to keep the app UI up to date
                 if (mCachedMovies == null) {
                     mCachedMovies = new LinkedHashMap<>();
@@ -144,7 +141,7 @@ public class MoviesRepository implements MoviesDataSource {
             public void onDataNotAvailable() {
                 mMoviesRemoteDataSource.getMovie(movieId, new GetMovieCallback() {
                     @Override
-                    public void onMovieLoaded(Movie movie) {
+                    public void onMovieLoaded(MovieEntity movie) {
                         // DO in memory cache update to keep the app UI up to date
                         if (mCachedMovies == null) {
                             mCachedMovies = new LinkedHashMap<>();
@@ -167,7 +164,7 @@ public class MoviesRepository implements MoviesDataSource {
      * @param movie is the movie to be saved
      */
     @Override
-    public void saveMovie(@NonNull Movie movie) {
+    public void saveMovie(@NonNull MovieEntity movie) {
 
         mMoviesLocalDataSource.saveMovie(movie);
         // Do in memory cache update to keep the app UI up to date
@@ -196,7 +193,7 @@ public class MoviesRepository implements MoviesDataSource {
         if (mCachedMovies != null) mCachedMovies.remove(movieId);
     }
 
-    private Movie getMovieWithId(int movieId) {
+    private MovieEntity getMovieWithId(int movieId) {
         if (mCachedMovies == null || mCachedMovies.isEmpty()) {
             return null;
         } else {

@@ -1,6 +1,7 @@
 package com.techbeloved.moviesbeloved.data.source.local;
 
 import com.techbeloved.moviesbeloved.data.models.Movie;
+import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 
 import java.util.List;
 
@@ -11,19 +12,19 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 @Dao
-public interface MovieDao {
+public interface MoviesDao {
 
-    @Query("SELECT * FROM Movies")
-    List<Movie> getMovies();
+    @Query("SELECT * FROM movies")
+    List<MovieEntity> getMovies();
 
     @Query("SELECT * FROM movies WHERE movie_id = :movieId")
-    Movie getMovieById(int movieId);
+    MovieEntity getMovieById(int movieId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertMovie(Movie movie);
+    void insertMovie(MovieEntity movie);
 
     @Update
-    int updateMovie(Movie movie);
+    int updateMovie(MovieEntity movie);
 
     @Query("DELETE FROM movies WHERE movie_id = :movieId")
     int deleteMovieById(int movieId);

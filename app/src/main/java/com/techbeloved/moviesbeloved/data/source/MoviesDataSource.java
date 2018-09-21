@@ -2,6 +2,7 @@ package com.techbeloved.moviesbeloved.data.source;
 
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.data.models.Movie;
+import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 
 import java.util.List;
 
@@ -12,13 +13,13 @@ import androidx.annotation.NonNull;
  */
 public interface MoviesDataSource {
     interface LoadMoviesCallback {
-        void  onMoviesLoaded(List<Movie> movies);
+        void  onMoviesLoaded(List<MovieEntity> movies);
 
         void onDataNotAvailable();
     }
 
     interface GetMovieCallback {
-        void onMovieLoaded(Movie movie);
+        void onMovieLoaded(MovieEntity movie);
 
         void onDataNotAvailable();
     }
@@ -40,7 +41,7 @@ public interface MoviesDataSource {
 
     void getMovie(int movieId, @NonNull GetMovieCallback callback);
 
-    void saveMovie(@NonNull Movie movie);
+    void saveMovie(@NonNull MovieEntity movie);
 
     void deleteAllMovies();
 

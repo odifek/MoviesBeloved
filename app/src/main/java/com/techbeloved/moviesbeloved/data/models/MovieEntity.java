@@ -8,19 +8,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "movies")
 public class MovieEntity implements Movie {
 
     @PrimaryKey
-    @NonNull
     @ColumnInfo(name = "movie_id")
     private int id;
     @Nullable
-    @ColumnInfo
+    @ColumnInfo(name = "title")
     private String title;
-    @ColumnInfo
+    @ColumnInfo(name = "synopsis")
     private String synopsis;
 
     @ColumnInfo(name = "poster_url")
@@ -45,6 +45,7 @@ public class MovieEntity implements Movie {
 
     }
 
+    @Ignore
     public MovieEntity(int id, String title) {
         this.id = id;
         this.title = title;
@@ -61,22 +62,22 @@ public class MovieEntity implements Movie {
     }
 
     @Override
-    public void setSynopsis(String synopsis) {
+    public void setSynopsis(@Nullable String synopsis) {
         this.synopsis = synopsis;
     }
 
     @Override
-    public void setPosterUrl(String posterUrl) {
+    public void setPosterUrl(@Nullable  String posterUrl) {
         this.posterUrl = posterUrl;
     }
 
     @Override
-    public void setBackdropUrl(String backdropUrl) {
+    public void setBackdropUrl(@Nullable String backdropUrl) {
         this.backdropUrl = backdropUrl;
     }
 
     @Override
-    public void setGenres(List<String> genres) {
+    public void setGenres(@Nullable List<String> genres) {
         this.genres = genres;
     }
 
@@ -91,7 +92,7 @@ public class MovieEntity implements Movie {
     }
 
     @Override
-    public void setReleaseDate(Date releaseDate) {
+    public void setReleaseDate(@Nullable Date releaseDate) {
         this.releaseDate = releaseDate;
     }
 
