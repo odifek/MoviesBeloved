@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Movie;
+import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 
 import java.util.List;
 
@@ -16,14 +17,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
-    private List<Movie> mMovieList;
+    private List<MovieEntity> mMovieList;
     final MovieClickCallback mMovieClickCallback;
 
     public MovieAdapter(MovieClickCallback clickCallback) {
         this.mMovieClickCallback = clickCallback;
     }
 
-    public void setMovieList(final List<Movie> movieList) {
+    public void setMovieList(final List<MovieEntity> movieList) {
         if (mMovieList == null) {
             mMovieList = movieList;
             notifyItemRangeInserted(0, movieList.size());

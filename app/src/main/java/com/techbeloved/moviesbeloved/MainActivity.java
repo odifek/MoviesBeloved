@@ -22,6 +22,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.techbeloved.moviesbeloved.data.models.Movie;
+import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.moviedetails.MovieDetailActivity;
 import com.techbeloved.moviesbeloved.movies.MovieAdapter;
 import com.techbeloved.moviesbeloved.movies.MovieClickCallback;
@@ -162,12 +163,12 @@ public class MainActivity extends AppCompatActivity {
                 Request.Method.GET, requestUrl, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                List<Movie> movieList = new ArrayList<>();
+                List<MovieEntity> movieList = new ArrayList<>();
                 try {
                     JSONArray resultsArray = response.getJSONArray("results");
                     for (int i = 0; i < resultsArray.length(); i++) {
                         JSONObject jsonMovie = resultsArray.getJSONObject(i);
-                        Movie movieInfo = MovieUtils.createMovieModel(jsonMovie);
+                        MovieEntity movieInfo = MovieUtils.createMovieModel(jsonMovie);
                         if (movieInfo != null) {
                             movieList.add(movieInfo);
                         }
