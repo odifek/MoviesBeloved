@@ -2,40 +2,34 @@ package com.techbeloved.moviesbeloved.moviedetails;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.widget.ContentLoadingProgressBar;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.techbeloved.moviesbeloved.Injection;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Movie;
-import com.techbeloved.moviesbeloved.utils.MovieUtils;
+import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 
-import org.json.JSONObject;
-
-import static com.techbeloved.moviesbeloved.utils.Constants.API_KEY_QUERY_PARAM;
-import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_ID;
-import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_PATH_SEG;
-import static com.techbeloved.moviesbeloved.utils.Constants.TMDB_API_BASE_URL;
-import static com.techbeloved.moviesbeloved.utils.Constants.TMDB_API_KEY;
+import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_ID_EXTRA;
 import static com.techbeloved.moviesbeloved.utils.MovieUtils.getYearFromDate;
 
-public class MovieDetailActivity extends AppCompatActivity {
+public class MovieDetailActivity extends AppCompatActivity implements MovieDetailContract.View {
 
     private static final String TAG = MovieDetailActivity.class.getSimpleName();
+
+    private MovieDetailContract.Presenter mPresenter;
+
+    private  boolean mIsActive;
 
     private int mCurrentMovieId;
 
@@ -49,6 +43,9 @@ public class MovieDetailActivity extends AppCompatActivity {
     private RatingBar mRatingBar;
     private TextView mGenreText;
 
+    private ContentLoadingProgressBar mProgressBar;
+    private ConstraintLayout mContentLayoutView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,31 +57,33 @@ public class MovieDetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final Intent movieIntent = getIntent();
-        if (movieIntent.hasExtra(MOVIE_ID)) {
-            mCurrentMovieId = movieIntent.getIntExtra(MOVIE_ID, 0);
+        if (movieIntent.hasExtra(MOVIE_ID_EXTRA)) {
+            mCurrentMovieId = movieIntent.getIntExtra(MOVIE_ID_EXTRA, 0);
         } else {
             finish();
             return;
         }
 
+        // Create Presenter. Presenter is set in the setPresenter method
+        new MovieDetailPresenter(mCurrentMovieId,
+                Injection.provideMoviesRepository(getApplicationContext()),
+                this
+        );
+
         setupViews();
+    }
 
-        loadMovieDetails(mCurrentMovieId);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mIsActive = true;
+        mPresenter.start();
+    }
 
-//        AppBarLayout appBarLayout = findViewById(R.id.appbar);
-//        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-//            @Override
-//            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-//                float percentage = (appBarLayout.getTotalScrollRange() - (float)Math.abs(verticalOffset))/appBarLayout.getTotalScrollRange();
-//                if (percentage < 0.3) {
-//                    fadeOutView(mPosterImage);
-////                    mPosterImage.setVisibility(View.GONE);
-//                } else if (percentage > 0.7){
-//                    fadeInView(mPosterImage);
-////                    mPosterImage.setVisibility(View.VISIBLE);
-//                }
-//            }
-//        });
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mIsActive = false;
     }
 
     private void setupViews() {
@@ -100,6 +99,45 @@ public class MovieDetailActivity extends AppCompatActivity {
         mRatingBar.setMax(5);
         mRatingBar.setStepSize(0.5f);
 
+        mProgressBar = findViewById(R.id.loading_progressbar);
+        mContentLayoutView = findViewById(R.id.movie_detail_view);
+    }
+
+    @Override
+    public void setLoadingIndicator(boolean active) {
+        if (active) {
+            mProgressBar.setVisibility(View.INVISIBLE);
+            mProgressBar.show();
+        } else {
+            mProgressBar.hide();
+            mProgressBar.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void showMovieFavorited() {
+
+    }
+
+    @Override
+    public void showMovieUnfavorited() {
+
+    }
+
+    @Override
+    public void showMovieDetail(MovieEntity movie) {
+        mContentLayoutView.setVisibility(View.VISIBLE);
+        displayMovieInfo(movie);
+    }
+
+    @Override
+    public boolean isActive() {
+        return mIsActive;
+    }
+
+    @Override
+    public void setPresenter(MovieDetailContract.Presenter presenter) {
+        mPresenter = presenter;
     }
 
     private void displayMovieInfo(Movie movieInfo) {
@@ -108,7 +146,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         mCollapsingToolbar.setTitle(movieInfo.getTitle());
 
         String year = getYearFromDate(movieInfo.getReleaseDate());
-        Log.i(TAG, "displayMovieInfo: year:  " + year);
         mYearText.setText(year);
 
         mRatingText.setText(String.valueOf(movieInfo.getUserRating()));
@@ -142,36 +179,5 @@ public class MovieDetailActivity extends AppCompatActivity {
                     .load(R.drawable.dancers)
                     .into(mPosterImage);
         }
-    }
-
-    private void loadMovieDetails(int currentMovieId) {
-        Uri.Builder builder = Uri.parse(TMDB_API_BASE_URL).buildUpon();
-        builder.appendPath(MOVIE_PATH_SEG)
-                .appendPath(String.valueOf(currentMovieId))
-                .appendQueryParameter(API_KEY_QUERY_PARAM, TMDB_API_KEY);
-        String requestUrl = builder.build().toString();
-
-        // Process with volley
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                Request.Method.GET, requestUrl, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Movie movieInfo = MovieUtils.createMovieModel(response);
-                // TODO: 9/19/18 Update the database with it also
-                // Display the movie info
-                if (movieInfo != null) {
-                    displayMovieInfo(movieInfo);
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-
-        // Add the request to the RequestQueue
-        queue.add(jsonObjectRequest);
     }
 }

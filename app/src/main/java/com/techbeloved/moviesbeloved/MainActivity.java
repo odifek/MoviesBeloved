@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                 // COMPLETED: handle click events here
 
                 Intent movieIntent = new Intent(MainActivity.this, MovieDetailActivity.class);
-                movieIntent.putExtra(MOVIE_ID, movie.getId());
+                movieIntent.putExtra(MOVIE_ID_EXTRA, movie.getId());
                 startActivity(movieIntent);
             }
         });
@@ -97,14 +97,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
+        inflater.inflate(R.menu.movies_fragment_menu, menu);
 
         // Initialise menu items
         int filterPref = getIntPreference(getApplicationContext(), getString(R.string.filter_by_pref_key));
         if (filterPref == getResources().getInteger(R.integer.popularity_filter)) {
-            menu.findItem(R.id.popularity_item).setChecked(true);
+            menu.findItem(R.id.popularity_filter_menu).setChecked(true);
         } else if (filterPref == getResources().getInteger(R.integer.user_rating_filter)) {
-            menu.findItem(R.id.user_rating_item).setChecked(true);
+            menu.findItem(R.id.top_rated_filter_menu).setChecked(true);
         }
         return true;
     }
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             // Handles toggling of check state and saving the preference
-            case R.id.popularity_item:
+            case R.id.popularity_filter_menu:
                 if (item.isChecked()) item.setChecked(false);
                 else item.setChecked(true);
                 saveIntPreference(getApplicationContext(),
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                 getPopularMovies(getString(R.string.popular), 1);
 
                 return true;
-            case R.id.user_rating_item:
+            case R.id.top_rated_filter_menu:
                 if (item.isChecked()) item.setChecked(false);
                 else item.setChecked(true);
                 saveIntPreference(getApplicationContext(),

@@ -73,8 +73,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
     public void clear() {
-        mMovieList.clear();
-        notifyDataSetChanged();
+        if (mMovieList != null) {
+            mMovieList.clear();
+            notifyDataSetChanged();
+        }
+
     }
 
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

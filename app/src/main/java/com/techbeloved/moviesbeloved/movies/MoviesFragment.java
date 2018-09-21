@@ -15,6 +15,7 @@ import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
+import com.techbeloved.moviesbeloved.moviedetails.MovieDetailActivity;
 import com.techbeloved.moviesbeloved.utils.EndlessScrollListener;
 
 import java.util.List;
@@ -24,6 +25,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import timber.log.Timber;
+
+import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_ID_EXTRA;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -205,5 +208,8 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     @Override
     public void showMovieDetails(int requestedMovieId) {
         // TODO: 9/21/18 create intent and launch the MovieDetail activity
+        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+        intent.putExtra(MOVIE_ID_EXTRA, requestedMovieId);
+        startActivity(intent);
     }
 }
