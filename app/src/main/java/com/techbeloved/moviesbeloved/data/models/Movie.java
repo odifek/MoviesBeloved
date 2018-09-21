@@ -1,4 +1,4 @@
-package com.techbeloved.moviesbeloved.models;
+package com.techbeloved.moviesbeloved.data.models;
 
 import java.util.Date;
 import java.util.List;
@@ -12,6 +12,7 @@ public interface Movie {
     float getUserRating();
     Date getReleaseDate();
     List<String> getGenres();
+    boolean isFavorite();
 
     void setPosterUrl(String posterUrl);
     void setBackdropUrl(String backdropUrl);
@@ -19,4 +20,7 @@ public interface Movie {
     void setUserRating(float userRating);
     void setReleaseDate(Date releaseDate);
     void setGenres(List<String> genres);
+    void setFavorite(boolean favorite);
+    void setId(int id);
+    void setTitle(String title);
 }

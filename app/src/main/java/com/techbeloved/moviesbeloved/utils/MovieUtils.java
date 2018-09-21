@@ -2,11 +2,9 @@ package com.techbeloved.moviesbeloved.utils;
 
 import android.net.Uri;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
-import android.util.TimeUtils;
 
-import com.techbeloved.moviesbeloved.models.Movie;
-import com.techbeloved.moviesbeloved.models.MovieImpl;
+import com.techbeloved.moviesbeloved.data.models.Movie;
+import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,11 +13,9 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 import static com.techbeloved.moviesbeloved.utils.Constants.*;
 
@@ -53,7 +49,7 @@ public class MovieUtils {
 
             Date releaseDate = new SimpleDateFormat("yyyy-MM-dd",
                     Locale.getDefault()).parse(releaseDateString);
-            Movie movieInfo = new MovieImpl(id, title);
+            Movie movieInfo = new MovieEntity(id, title);
             movieInfo.setPosterUrl(buildImageUrl(posterPath, DEFAULT_POSTER_SIZE));
             movieInfo.setSynopsis(synopsis);
             movieInfo.setReleaseDate(releaseDate);

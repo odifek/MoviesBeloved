@@ -1,25 +1,62 @@
-package com.techbeloved.moviesbeloved.models;
+package com.techbeloved.moviesbeloved.data.models;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
-public class MovieImpl implements Movie {
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
+@Entity(tableName = "movies")
+public class MovieEntity implements Movie {
+
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = "movie_id")
     private int id;
+    @Nullable
+    @ColumnInfo
     private String title;
+    @ColumnInfo
     private String synopsis;
+
+    @ColumnInfo(name = "poster_url")
     private String posterUrl;
+
+    @ColumnInfo(name = "backdrop_url")
     private String backdropUrl;
+
+    @ColumnInfo(name = "genres")
     private List<String> genres;
+
+    @ColumnInfo(name = "average_rating")
     private float userRating;
+
+    @ColumnInfo(name = "release_date")
     private Date releaseDate;
 
-    public MovieImpl() {
+    @ColumnInfo(name = "is_favorite")
+    private boolean isFavorite;
+
+    public MovieEntity() {
 
     }
 
-    public MovieImpl(int id, String title) {
+    public MovieEntity(int id, String title) {
         this.id = id;
+        this.title = title;
+        // Not favorite by default;
+        this.isFavorite = false;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setTitle(@Nullable String title) {
         this.title = title;
     }
 
@@ -41,6 +78,11 @@ public class MovieImpl implements Movie {
     @Override
     public void setGenres(List<String> genres) {
         this.genres = genres;
+    }
+
+    @Override
+    public void setFavorite(boolean favorite) {
+        this.isFavorite = favorite;
     }
 
     @Override
@@ -93,5 +135,13 @@ public class MovieImpl implements Movie {
         return this.genres;
     }
 
+    @Override
+    public boolean isFavorite() {
+        return isFavorite;
+    }
 
+    @Override
+    public String toString() {
+        return "Movie title: " + title;
+    }
 }

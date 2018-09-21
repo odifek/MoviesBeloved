@@ -12,8 +12,7 @@ public class Constants {
     public static final String MOVIE_PATH_SEG = "movie";
     public static final int DEFAULT_MOVIES_PAGE = 1;
 
-    public enum SortBy {
-        POPULARITY,
-        USER_RATING
-    }
+    public static final String FILTER_POPULAR_PATH = "popular";
+    public static final String FILTER_TOP_RATED_PATH = "top_rated";
+    public static final String RESULTS_JSON_ARRAY_KEY = "results";
 }
