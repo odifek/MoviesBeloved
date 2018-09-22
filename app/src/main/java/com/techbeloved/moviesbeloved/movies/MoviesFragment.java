@@ -20,6 +20,7 @@ import com.techbeloved.moviesbeloved.utils.EndlessScrollListener;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -42,6 +43,11 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     private MovieAdapter mAdapter;
     RecyclerView.OnScrollListener mOnScrollListener;
     RecyclerView mRecyclerView;
+    private GridLayoutManager mLayoutManager;
+
+    // Current page of movies list
+    private int mCurrentPage;
+    private static final String CURRENT_PAGE = "CURRENT_PAGE";
 
     private TextView mNoMoviesTextView;
     private ContentLoadingProgressBar mProgressBar;
@@ -64,6 +70,12 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
         return fragment;
     }
 
+    /**
+     * Any functionality that you would want to persist across pause and resume of fragment, for example,
+     * when navigating to a new activity which you plan to return from,
+     * such functionality should be place here in onCreate because it only gets executed once, on fragment creation
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +86,15 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
                 mPresenter.openMovieDetails(movie.getId());
             }
         });
+        mLayoutManager = new GridLayoutManager(getContext(), getContext().getResources().getInteger(R.integer.movie_grid_span_count));
+        mOnScrollListener = new EndlessScrollListener(mLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                Timber.i("Loading page: %s", (page + 1));
+                mPresenter.setNextPageToLoad(page + 1);
+                mPresenter.loadMovies(); // The first page is actually 1 not 0, so increment to match the api
+            }
+        };
     }
 
     @Override
@@ -93,10 +114,17 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root =  inflater.inflate(R.layout.fragment_movies, container, false);
+
+        // restore state if any
+        if (savedInstanceState != null) {
+            mCurrentPage = savedInstanceState.getInt(CURRENT_PAGE);
+        } else {
+            mCurrentPage = 1;
+        }
 
         // Set up movies view
 
@@ -104,19 +132,19 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
         mProgressBar = root.findViewById(R.id.loading_progressbar);
 
         mRecyclerView = root.findViewById(R.id.movie_list);
+        mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
 
-        GridLayoutManager layoutManager = (GridLayoutManager) mRecyclerView.getLayoutManager();
-        mOnScrollListener = new EndlessScrollListener(layoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                mPresenter.loadMoreMovies(page + 1); // The first page is actually 1 not 0, so increment to match
-            }
-        };
         mRecyclerView.setOnScrollListener(mOnScrollListener);
 
         setHasOptionsMenu(true);
         return root;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -207,7 +235,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
 
     @Override
     public void showMovieDetails(int requestedMovieId) {
-        // TODO: 9/21/18 create intent and launch the MovieDetail activity
+        // COMPLETED: 9/21/18 create intent and launch the MovieDetail activity
         Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
         intent.putExtra(MOVIE_ID_EXTRA, requestedMovieId);
         startActivity(intent);

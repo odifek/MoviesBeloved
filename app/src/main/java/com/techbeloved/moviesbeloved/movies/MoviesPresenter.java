@@ -25,6 +25,9 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     // The default filter is most popular movies
     private MovieFilterType mCurrentFiltering = MovieFilterType.POPULAR;
 
+    // Next page that should be loaded
+    private int mNextPageToLoad = 1;
+
     public MoviesPresenter(@NonNull MoviesRepository moviesRepository, @NonNull MoviesContract.View moviesView) {
         mMoviesRepository = checkNotNull(moviesRepository, "moviesRepository cannot be null!");
         mMoviesView = checkNotNull(moviesView, "moviesView cannot be null!");
@@ -44,23 +47,27 @@ public class MoviesPresenter implements MoviesContract.Presenter {
 
     @Override
     public void loadMovies() {
-        mMoviesView.setLoadingIndicator(true);
-        mMoviesRepository.getMovies(mCurrentFiltering, new MoviesDataSource.LoadMoviesCallback() {
-            @Override
-            public void onMoviesLoaded(List<MovieEntity> movies) {
-                if (!mMoviesView.isActive()) {
-                    return;
+        if (mNextPageToLoad == 1) { // This is first page or we're loading favorites
+            mMoviesView.setLoadingIndicator(true);
+            mMoviesRepository.getMovies(mCurrentFiltering, new MoviesDataSource.LoadMoviesCallback() {
+                @Override
+                public void onMoviesLoaded(List<MovieEntity> movies) {
+                    if (!mMoviesView.isActive()) {
+                        return;
+                    }
+                    mMoviesView.setLoadingIndicator(false);
+                    mMoviesView.showMovies(movies);
                 }
-                mMoviesView.setLoadingIndicator(false);
-                mMoviesView.showMovies(movies);
-            }
 
-            @Override
-            public void onDataNotAvailable() {
-                mMoviesView.setLoadingIndicator(false);
-                mMoviesView.showNoMovies();
-            }
-        });
+                @Override
+                public void onDataNotAvailable() {
+                    mMoviesView.setLoadingIndicator(false);
+                    mMoviesView.showNoMovies();
+                }
+            });
+        } else  {
+           loadMoreMovies(mNextPageToLoad);
+        }
     }
 
     /**
@@ -82,7 +89,9 @@ public class MoviesPresenter implements MoviesContract.Presenter {
 
             @Override
             public void onDataNotAvailable() {
-
+                // Well, we've reached the end of the road and nothing more to show. Do nothing actually.
+                // This happens typically when viewing favorites which of course are not unlimited
+                // and are not organised in pages
             }
         });
     }
@@ -101,5 +110,15 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     @Override
     public MovieFilterType getFiltering() {
         return mCurrentFiltering;
+    }
+
+    @Override
+    public void setNextPageToLoad(int nextPage) {
+        mNextPageToLoad = nextPage;
+    }
+
+    @Override
+    public int getNextPageToLoad() {
+        return mNextPageToLoad;
     }
 }

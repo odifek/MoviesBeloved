@@ -40,5 +40,9 @@ public interface MoviesContract {
         void setFiltering(MovieFilterType filtering);
 
         MovieFilterType getFiltering();
+
+        void setNextPageToLoad(int nextPage);
+
+        int getNextPageToLoad();
     }
 }
