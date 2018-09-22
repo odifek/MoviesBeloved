@@ -3,7 +3,9 @@ package com.techbeloved.moviesbeloved.moviedetails;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.widget.ContentLoadingProgressBar;
+import timber.log.Timber;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +17,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.techbeloved.moviesbeloved.Injection;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Movie;
@@ -45,7 +49,16 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
 
     private ContentLoadingProgressBar mProgressBar;
     private ConstraintLayout mContentLayoutView;
+    private CoordinatorLayout mMainCoordinatorLayout;
 
+    private FloatingActionButton mFavoriteFab;
+
+    private View.OnClickListener mFavFabOnclickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mPresenter.toggleFavorite();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +114,10 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
 
         mProgressBar = findViewById(R.id.loading_progressbar);
         mContentLayoutView = findViewById(R.id.movie_detail_view);
+        mMainCoordinatorLayout = findViewById(R.id.main_coordinator_layout);
+        mFavoriteFab = findViewById(R.id.favorite_fab);
+
+        mFavoriteFab.setOnClickListener(mFavFabOnclickListener);
     }
 
     @Override
@@ -116,12 +133,20 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
 
     @Override
     public void showMovieFavorited() {
-
+        showFavoriteIcon(true);
+        Snackbar.make(mMainCoordinatorLayout,
+                "Movie added to favorites",
+                Snackbar.LENGTH_SHORT
+        ).show();
     }
 
     @Override
     public void showMovieUnfavorited() {
-
+        showFavoriteIcon(false);
+        Snackbar.make(mMainCoordinatorLayout,
+                "Movie removed from favorites",
+                Snackbar.LENGTH_SHORT
+        ).show();
     }
 
     @Override
@@ -178,6 +203,17 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
             Glide.with(mPosterImage.getContext())
                     .load(R.drawable.dancers)
                     .into(mPosterImage);
+        }
+        // Update favorite icon
+        showFavoriteIcon(movieInfo.isFavorite());
+    }
+
+    private void showFavoriteIcon(boolean isFavorite) {
+        Timber.i("showFavoriteIcon is called");
+        if (isFavorite) mFavoriteFab.setImageResource(R.drawable.ic_favorite);
+        else mFavoriteFab.setImageResource(R.drawable.ic_unfavorite);
+        if (mFavoriteFab.getDrawable() == null) {
+            Timber.i("No drawable set!");
         }
     }
 }

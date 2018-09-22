@@ -1,5 +1,6 @@
 package com.techbeloved.moviesbeloved.moviedetails;
 
+import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.data.source.MoviesDataSource;
 import com.techbeloved.moviesbeloved.data.source.MoviesRepository;
@@ -15,6 +16,7 @@ public class MovieDetailPresenter implements MovieDetailContract.Presenter {
     private final MovieDetailContract.View mMovieDetailView;
 
     private int mMovieId;
+    private MovieEntity mCurrentMovie;
 
     public MovieDetailPresenter(int movieId,
                                 @NonNull MoviesRepository moviesRepository,
@@ -39,6 +41,8 @@ public class MovieDetailPresenter implements MovieDetailContract.Presenter {
                 if (!mMovieDetailView.isActive()) {
                     return;
                 }
+                // Hold the details of the current movie in place
+                mCurrentMovie = movie;
                 mMovieDetailView.setLoadingIndicator(false);
                 showMovie(movie);
             }
@@ -56,8 +60,20 @@ public class MovieDetailPresenter implements MovieDetailContract.Presenter {
     }
 
     @Override
-    public void markFavorite() {
-
+    public void toggleFavorite() {
+        if (mCurrentMovie != null) {
+            if (mCurrentMovie.isFavorite()) {
+                // Remove from favorites
+                mCurrentMovie.setFavorite(false);
+                mMoviesRepository.deleteMovie(mMovieId);
+                mMovieDetailView.showMovieUnfavorited();
+            } else {
+                // Save as a favorite
+                mCurrentMovie.setFavorite(true);
+                mMoviesRepository.saveMovie(mCurrentMovie);
+                mMovieDetailView.showMovieFavorited();
+            }
+        }
     }
 
 }
