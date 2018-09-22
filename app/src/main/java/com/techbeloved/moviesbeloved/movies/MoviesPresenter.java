@@ -9,6 +9,7 @@ import com.techbeloved.moviesbeloved.data.source.MoviesRepository;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import timber.log.Timber;
 
 import static com.bumptech.glide.util.Preconditions.checkNotNull;
 
@@ -77,6 +78,7 @@ public class MoviesPresenter implements MoviesContract.Presenter {
      */
     @Override
     public void loadMoreMovies(int page) {
+        Timber.i("More movies about to load");
         mMoviesRepository.getMovies(mCurrentFiltering, page, new MoviesDataSource.LoadMoviesCallback() {
             @Override
             public void onMoviesLoaded(List<MovieEntity> movies) {
@@ -84,6 +86,7 @@ public class MoviesPresenter implements MoviesContract.Presenter {
                     return;
                 }
                 mMoviesView.setLoadingIndicator(false);
+                Timber.i("More movies loaded");
                 mMoviesView.showMoreMovies(movies);
             }
 
@@ -120,5 +123,12 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     @Override
     public int getNextPageToLoad() {
         return mNextPageToLoad;
+    }
+
+    @Override
+    public void reloadMovies() {
+        // Reset to page one
+        mNextPageToLoad = 1;
+        loadMovies();
     }
 }

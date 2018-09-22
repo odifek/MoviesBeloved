@@ -172,14 +172,14 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
                 if (!item.isChecked()) {
                     // Only reload if the it's not the currently selected filter
                     mAdapter.clear();
-                    mPresenter.loadMovies();
+                    mPresenter.reloadMovies();
                 }
                 break;
             case R.id.popularity_filter_menu:
                 mPresenter.setFiltering(MovieFilterType.POPULAR);
                 if (!item.isChecked()) {
                     mAdapter.clear();
-                    mPresenter.loadMovies();
+                    mPresenter.reloadMovies();
                 }
                 break;
             case R.id.favorites_filter_menu:
@@ -187,7 +187,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
                 if (!item.isChecked()) {
                     Timber.i("Should reload");
                     mAdapter.clear();
-                    mPresenter.loadMovies();
+                    mPresenter.reloadMovies();
                 }
                 break;
         }
@@ -208,6 +208,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     @Override
     public void showMovies(List<MovieEntity> movies) {
         mNoMoviesTextView.setVisibility(View.VISIBLE);
+        mAdapter.clear();
         mAdapter.setMovieList(movies);
     }
 
