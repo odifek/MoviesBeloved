@@ -92,9 +92,11 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 Timber.i("Loading page: %s", (page + 1));
                 mPresenter.setNextPageToLoad(page + 1);
-                mPresenter.loadMovies(); // The first page is actually 1 not 0, so increment to match the api
+                mCurrentPage = page + 1;
+                mPresenter.loadMoreMovies(page + 1); // The first page is actually 1 not 0, so increment to match the api
             }
         };
+        mPresenter.setShouldReload(true);
     }
 
     @Override
@@ -120,11 +122,17 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
         View root =  inflater.inflate(R.layout.fragment_movies, container, false);
 
         // restore state if any
-        if (savedInstanceState != null) {
-            mCurrentPage = savedInstanceState.getInt(CURRENT_PAGE);
-        } else {
-            mCurrentPage = 1;
-        }
+        // Only set reload if first time of loading or we are on favorites. Because favorites should
+        // actually refresh each time we return to the listing view
+//        if (savedInstanceState != null) {
+//            Timber.i("Any saved instance?");
+//            mCurrentPage = savedInstanceState.getInt(CURRENT_PAGE);
+//            mPresenter.setShouldReload(false);
+//        } else {
+//            mPresenter.setShouldReload(true);
+//            mCurrentPage = 1;
+//        }
+//        mPresenter.setNextPageToLoad(mCurrentPage);
 
         // Set up movies view
 
@@ -143,8 +151,18 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-
+        outState.putInt(CURRENT_PAGE, mCurrentPage);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mPresenter.getFiltering() != MovieFilterType.FAVORITES) {
+            mPresenter.setShouldReload(false);
+        } else {
+            mPresenter.setShouldReload(true);
+        }
     }
 
     @Override
@@ -171,29 +189,35 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
                 mPresenter.setFiltering(MovieFilterType.TOP_RATED);
                 if (!item.isChecked()) {
                     // Only reload if the it's not the currently selected filter
-                    mAdapter.clear();
-                    mPresenter.reloadMovies();
+                    reloadMovies();
                 }
                 break;
             case R.id.popularity_filter_menu:
                 mPresenter.setFiltering(MovieFilterType.POPULAR);
                 if (!item.isChecked()) {
-                    mAdapter.clear();
-                    mPresenter.reloadMovies();
+                    reloadMovies();
                 }
                 break;
             case R.id.favorites_filter_menu:
                 mPresenter.setFiltering(MovieFilterType.FAVORITES);
                 if (!item.isChecked()) {
                     Timber.i("Should reload");
-                    mAdapter.clear();
-                    mPresenter.reloadMovies();
+                    reloadMovies();
                 }
                 break;
         }
         // Finally check the item
         item.setChecked(true);
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Clears adapter and reloads the movies list
+     */
+    private void reloadMovies() {
+        mAdapter.clear();
+        ((EndlessScrollListener) mOnScrollListener).resetState();
+        mPresenter.reloadMovies();
     }
 
     @Override

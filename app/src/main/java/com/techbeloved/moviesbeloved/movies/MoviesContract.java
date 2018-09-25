@@ -46,5 +46,7 @@ public interface MoviesContract {
         int getNextPageToLoad();
 
         void reloadMovies();
+
+        void setShouldReload(boolean reload);
     }
 }

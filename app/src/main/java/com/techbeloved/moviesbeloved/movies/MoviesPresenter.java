@@ -1,7 +1,6 @@
 package com.techbeloved.moviesbeloved.movies;
 
 import com.techbeloved.moviesbeloved.MovieFilterType;
-import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.data.source.MoviesDataSource;
 import com.techbeloved.moviesbeloved.data.source.MoviesRepository;
@@ -29,6 +28,8 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     // Next page that should be loaded
     private int mNextPageToLoad = 1;
 
+    private boolean mShouldReload;
+
     public MoviesPresenter(@NonNull MoviesRepository moviesRepository, @NonNull MoviesContract.View moviesView) {
         mMoviesRepository = checkNotNull(moviesRepository, "moviesRepository cannot be null!");
         mMoviesView = checkNotNull(moviesView, "moviesView cannot be null!");
@@ -48,7 +49,8 @@ public class MoviesPresenter implements MoviesContract.Presenter {
 
     @Override
     public void loadMovies() {
-        if (mNextPageToLoad == 1) { // This is first page or we're loading favorites
+        Timber.i("Should reload? %s", mShouldReload);
+        if (mShouldReload) { // This is first page or we're loading favorites
             mMoviesView.setLoadingIndicator(true);
             mMoviesRepository.getMovies(mCurrentFiltering, new MoviesDataSource.LoadMoviesCallback() {
                 @Override
@@ -66,9 +68,8 @@ public class MoviesPresenter implements MoviesContract.Presenter {
                     mMoviesView.showNoMovies();
                 }
             });
-        } else  {
-           loadMoreMovies(mNextPageToLoad);
         }
+
     }
 
     /**
@@ -129,6 +130,12 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     public void reloadMovies() {
         // Reset to page one
         mNextPageToLoad = 1;
+        mShouldReload = true;
         loadMovies();
+    }
+
+    @Override
+    public void setShouldReload(boolean reload) {
+        mShouldReload = reload;
     }
 }
