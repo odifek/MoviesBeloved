@@ -11,9 +11,22 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug {
+            buildConfigField('String', "TmdbApiKey", MoviesBeloved_TMDB_ApiKey)
+            resValue('string', "tmdb_api_key", MoviesBeloved_TMDB_ApiKey)
+
+            buildConfigField('String', "YoutubeApiKey", MoviesBeloved_Youtube_ApiKey)
+            resValue('string', "youtube_api_key", MoviesBeloved_Youtube_ApiKey)
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            buildConfigField('String', "TmdbApiKey", MoviesBeloved_TMDB_ApiKey)
+            resValue('string', "tmdb_api_key", MoviesBeloved_TMDB_ApiKey)
+
+            buildConfigField('String', "YoutubeApiKey", MoviesBeloved_Release_Youtube_ApiKey)
+            resValue('string', "youtube_api_key", MoviesBeloved_Youtube_ApiKey)
         }
     }
 }
@@ -22,22 +35,21 @@ dependencies {
     def room_version = "2.0.0-rc01"
     def lifecycle_version = "2.0.0-rc01"
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.0.0-rc02'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'androidx.cardview:cardview:1.0.0-rc02'
-    implementation 'androidx.recyclerview:recyclerview:1.0.0-rc02'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    implementation 'com.google.android.material:material:1.0.0-rc02'
+    implementation 'com.google.android.material:material:1.0.0'
 
     // Displaying images
     implementation 'com.github.bumptech.glide:glide:4.7.1'
 
     // Http requests
     implementation 'com.android.volley:volley:1.1.1'
-    implementation 'androidx.legacy:legacy-support-core-ui:1.0.0-rc02'
+    implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
 
     implementation 'com.makeramen:roundedimageview:2.3.0'
 
