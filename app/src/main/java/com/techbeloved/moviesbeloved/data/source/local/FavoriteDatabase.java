@@ -8,15 +8,19 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
+import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
+import com.techbeloved.moviesbeloved.data.models.VideoEntity;
 
-@Database(entities = {MovieEntity.class}, version = 1)
+@Database(entities = {MovieEntity.class, ReviewEntity.class, VideoEntity.class}, version = 2)
 @TypeConverters({DateConverter.class, ListConverter.class})
 public abstract class FavoriteDatabase extends RoomDatabase {
     private static FavoriteDatabase INSTANCE;
 
     public abstract MoviesDao moviesDao();
 
-    private static final Object sLock = new Object();
+    public abstract ReviewsDao reviewsDao();
+
+    public abstract VideosDao videosDao();
 
     public static FavoriteDatabase getInstance(Context context) {
         if (INSTANCE == null)

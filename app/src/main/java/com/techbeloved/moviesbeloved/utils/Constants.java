@@ -12,6 +12,8 @@ public class Constants {
     public static final String PAGE_QUERY_PARAM = "page";
     public static final String API_KEY_QUERY_PARAM = "api_key";
     public static final String MOVIE_PATH_SEG = "movie";
+    public static final String REVIEWS_PATH_SEGMENT = "reviews";
+    public static final String VIDEOS_PATH_SEGMENT = "videos";
     public static final int DEFAULT_MOVIES_PAGE = 1;
 
     public static final String FILTER_POPULAR_PATH = "popular";

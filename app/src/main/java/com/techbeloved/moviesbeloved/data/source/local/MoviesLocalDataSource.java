@@ -1,8 +1,10 @@
 package com.techbeloved.moviesbeloved.data.source.local;
 
 import com.techbeloved.moviesbeloved.MovieFilterType;
-import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
+import com.techbeloved.moviesbeloved.data.models.Review;
+import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
+import com.techbeloved.moviesbeloved.data.models.VideoEntity;
 import com.techbeloved.moviesbeloved.data.source.MoviesDataSource;
 import com.techbeloved.moviesbeloved.utils.AppExecutors;
 
@@ -21,20 +23,30 @@ public class MoviesLocalDataSource implements MoviesDataSource {
 
     private MoviesDao mMoviesDao;
 
+    private ReviewsDao mReviewsDao;
+
+    private VideosDao mVideosDao;
+
     private AppExecutors mAppExecutors;
 
     private MoviesLocalDataSource(@NonNull AppExecutors appExecutors,
-                                  @NonNull MoviesDao moviesDao) {
+                                  @NonNull MoviesDao moviesDao,
+                                  @NonNull ReviewsDao reviewsDao,
+                                  @NonNull VideosDao videosDao) {
         mAppExecutors = appExecutors;
         mMoviesDao = moviesDao;
+        mReviewsDao = reviewsDao;
+        mVideosDao = videosDao;
     }
 
     public static MoviesLocalDataSource getInstance(@NonNull AppExecutors appExecutors,
-                                                    @NonNull MoviesDao moviesDao) {
+                                                    @NonNull MoviesDao moviesDao,
+                                                    @NonNull ReviewsDao reviewsDao,
+                                                    @NonNull VideosDao videosDao) {
         if (INSTANCE == null) {
             synchronized (MoviesLocalDataSource.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = new MoviesLocalDataSource(appExecutors, moviesDao);
+                    INSTANCE = new MoviesLocalDataSource(appExecutors, moviesDao, reviewsDao, videosDao);
                 }
             }
         }
@@ -124,6 +136,100 @@ public class MoviesLocalDataSource implements MoviesDataSource {
             }
         };
 
+        mAppExecutors.diskIO().execute(runnable);
+    }
+
+    @Override
+    public void getReviews(final int movieId, @NonNull final LoadReviewsCallback callback) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                final List<ReviewEntity> reviews = mReviewsDao.getReviews(movieId);
+                mAppExecutors.mainThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (reviews != null) {
+                            callback.onReviewsLoaded(reviews);
+                        } else {
+                            callback.onDataNotAvailable();
+                        }
+                    }
+                });
+            }
+        };
+        mAppExecutors.diskIO().execute(runnable);
+    }
+
+    @Override
+    public void getReviews(int movieId, int page, @NonNull LoadReviewsCallback callback) {
+        // paginated content not applicable in local database. Or maybe later on
+    }
+
+    @Override
+    public void saveReview(@NonNull final ReviewEntity review) {
+        checkNotNull(review);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                mReviewsDao.insertReview(review);
+            }
+        };
+        mAppExecutors.diskIO().execute(runnable);
+    }
+
+    @Override
+    public void deleteReviews(final int movieId) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                mReviewsDao.deleteReviews(movieId);
+            }
+        };
+
+        mAppExecutors.diskIO().execute(runnable);
+    }
+
+    @Override
+    public void getVideos(final int movieId, @NonNull final LoadVideosCallback callback) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                final List<VideoEntity> videos = mVideosDao.getVideos(movieId);
+                mAppExecutors.mainThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (videos != null) {
+                            callback.onVideosLoaded(videos);
+                        } else {
+                            callback.onDataNotAvailable();
+                        }
+                    }
+                });
+            }
+        };
+        mAppExecutors.diskIO().execute(runnable);
+    }
+
+    @Override
+    public void saveVideo(@NonNull final VideoEntity video) {
+        checkNotNull(video);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                mVideosDao.insertVideo(video);
+            }
+        };
+        mAppExecutors.diskIO().execute(runnable);
+    }
+
+    @Override
+    public void deleteVideos(final int movieId) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                mVideosDao.deleteVideos(movieId);
+            }
+        };
         mAppExecutors.diskIO().execute(runnable);
     }
 
