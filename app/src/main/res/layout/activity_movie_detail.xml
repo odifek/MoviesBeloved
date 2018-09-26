@@ -69,7 +69,7 @@
                     android:id="@+id/movie_detail_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="invisible">
+                    android:visibility="visible">
 
                 <ImageView
                         android:id="@+id/iv_movie_poster_anchor"
@@ -197,32 +197,41 @@
                         app:layout_constraintStart_toStartOf="@+id/synopsis_text"
                         android:layout_marginTop="16dp"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"/>
-                <HorizontalScrollView
+
+                <androidx.recyclerview.widget.RecyclerView
                         android:layout_width="0dp"
-                        android:layout_height="100dp"
+                        android:layout_height="150dp"
                         app:layout_constraintTop_toBottomOf="@+id/videos_title"
                         app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
                         android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
                         android:layout_marginEnd="8dp" android:layout_marginRight="8dp" android:layout_marginTop="8dp"
-                        android:id="@+id/horizontalScrollView">
-                    <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent"
-                                  android:orientation="horizontal" android:id="@+id/trailers_container_layout"/>
-                </HorizontalScrollView>
+                        android:id="@+id/videos_recycler_view"
+                        tools:listitem="@layout/movie_item"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        android:orientation="horizontal"/>
+
                 <androidx.recyclerview.widget.RecyclerView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
-                        android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
-                        android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
-                        tools:listitem="@layout/review_item" android:id="@+id/review_recycler_view"
-                        app:layout_constraintTop_toBottomOf="@+id/reviews_header" android:layout_marginTop="8dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginStart="8dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginRight="8dp"
+                        tools:listitem="@layout/review_item"
+                        android:id="@+id/review_recycler_view"
+                        app:layout_constraintTop_toBottomOf="@+id/reviews_header"
+                        android:layout_marginTop="8dp"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                        android:orientation="vertical"/>
+                        android:orientation="vertical"
+                        android:clipToPadding="false"/>
                 <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:id="@+id/reviews_header"
-                        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView" android:layout_marginTop="8dp"
+                        app:layout_constraintTop_toBottomOf="@+id/videos_recycler_view"
+                        android:layout_marginTop="8dp"
                         app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
                         android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
                         android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
