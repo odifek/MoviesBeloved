@@ -1,4 +1,4 @@
-package com.techbeloved.moviesbeloved.moviedetails;
+package com.techbeloved.moviesbeloved.moviedetails.reviews;
 
 import android.view.LayoutInflater;
 import android.view.View;

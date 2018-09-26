@@ -19,7 +19,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:id="@+id/author_text" tools:text="Rajh Nakamoto"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" android:textStyle="italic"/>
-        <com.techbeloved.moviesbeloved.moviedetails.ExpandableTextView
+
+        <com.techbeloved.moviesbeloved.moviedetails.reviews.ExpandableTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:id="@+id/review_text"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"

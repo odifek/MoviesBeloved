@@ -1,17 +1,14 @@
 package com.techbeloved.moviesbeloved.moviedetails;
 
-import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.widget.ContentLoadingProgressBar;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.youtube.player.YouTubePlayerFragment;
-import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.techbeloved.moviesbeloved.YoutubePlayerActivity;
 import com.techbeloved.moviesbeloved.data.models.*;
+import com.techbeloved.moviesbeloved.moviedetails.reviews.ReviewAdapter;
 import com.techbeloved.moviesbeloved.moviedetails.videos.VideoAdapter;
 import com.techbeloved.moviesbeloved.moviedetails.videos.VideoClickCallback;
 import com.techbeloved.moviesbeloved.utils.Constants;
