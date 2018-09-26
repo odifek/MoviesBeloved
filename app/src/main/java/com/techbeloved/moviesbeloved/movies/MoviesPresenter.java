@@ -23,7 +23,7 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     private final MoviesContract.View mMoviesView;
 
     // The default filter is most popular movies
-    private MovieFilterType mCurrentFiltering = MovieFilterType.POPULAR;
+    private MovieFilterType mCurrentFiltering;
 
     // Next page that should be loaded
     private int mNextPageToLoad = 1;
