@@ -3,6 +3,9 @@ package com.techbeloved.moviesbeloved.moviedetails;
 import com.techbeloved.moviesbeloved.BasePresenter;
 import com.techbeloved.moviesbeloved.BaseView;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
+import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
+
+import java.util.List;
 
 public interface MovieDetailContract {
 
@@ -14,6 +17,8 @@ public interface MovieDetailContract {
         void showMovieUnfavorited();
 
         void showMovieDetail(MovieEntity movie);
+
+        void showReviews(List<ReviewEntity> reviews);
 
         // Whether view is active
         boolean isActive();

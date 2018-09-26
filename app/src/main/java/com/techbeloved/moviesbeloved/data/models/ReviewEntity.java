@@ -1,17 +1,19 @@
 package com.techbeloved.moviesbeloved.data.models;
 
 
+import androidx.annotation.NonNull;
 import androidx.room.*;
 
 import static androidx.room.ForeignKey.CASCADE;
 
-@Entity(tableName = "reviews", foreignKeys =
-    @ForeignKey(entity = MovieEntity.class, parentColumns = "movie_id", childColumns = "movie_id", onDelete = CASCADE))
+@Entity(tableName = "reviews", indices = @Index(value = {"movie_id", "review_id", "content"}),
+        foreignKeys = @ForeignKey(entity = MovieEntity.class, parentColumns = "movie_id", childColumns = "movie_id", onDelete = CASCADE))
 public class ReviewEntity implements Review {
 
     @PrimaryKey
     @ColumnInfo(name = "review_id")
-    private String  id;
+    @NonNull
+    private String id;
     @ColumnInfo(name = "movie_id")
     private int movieId;
     private String author;
@@ -19,12 +21,12 @@ public class ReviewEntity implements Review {
     private String url;
 
     @Ignore
-    public ReviewEntity(int movieId, String id) {
+    public ReviewEntity(int movieId, @NonNull String id) {
         this.id = id;
         this.movieId = movieId;
     }
 
-    public ReviewEntity(int movieId, String id, String author, String content, String url) {
+    public ReviewEntity(int movieId, @NonNull String id, String author, String content, String url) {
         this.id = id;
         this.movieId = movieId;
         this.author = author;

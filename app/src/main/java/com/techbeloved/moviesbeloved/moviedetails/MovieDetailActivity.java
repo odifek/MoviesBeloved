@@ -5,6 +5,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.widget.ContentLoadingProgressBar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
 import timber.log.Timber;
 
 import android.content.Intent;
@@ -23,6 +26,8 @@ import com.techbeloved.moviesbeloved.Injection;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
+
+import java.util.List;
 
 import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_ID_EXTRA;
 import static com.techbeloved.moviesbeloved.utils.MovieUtils.getYearFromDate;
@@ -59,6 +64,9 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
             mPresenter.toggleFavorite();
         }
     };
+
+    private RecyclerView mReviewList;
+    private ReviewAdapter mReviewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +126,10 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
         mFavoriteFab = findViewById(R.id.favorite_fab);
 
         mFavoriteFab.setOnClickListener(mFavFabOnclickListener);
+
+        mReviewList = findViewById(R.id.review_recycler_view);
+        mReviewAdapter = new ReviewAdapter();
+        mReviewList.setAdapter(mReviewAdapter);
     }
 
     @Override
@@ -153,6 +165,11 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
     public void showMovieDetail(MovieEntity movie) {
         mContentLayoutView.setVisibility(View.VISIBLE);
         displayMovieInfo(movie);
+    }
+
+    @Override
+    public void showReviews(List<ReviewEntity> reviews) {
+        mReviewAdapter.setReviewList(reviews);
     }
 
     @Override

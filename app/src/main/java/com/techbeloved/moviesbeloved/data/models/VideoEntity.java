@@ -1,16 +1,18 @@
 package com.techbeloved.moviesbeloved.data.models;
 
+import androidx.annotation.NonNull;
 import androidx.room.*;
 
 import static androidx.room.ForeignKey.CASCADE;
 
-@Entity(tableName = "videos", foreignKeys =
-    @ForeignKey(entity = MovieEntity.class, parentColumns = "movie_id",
+@Entity(tableName = "videos", indices = @Index(value = {"movie_id", "video_id", "key"}),
+        foreignKeys = @ForeignKey(entity = MovieEntity.class, parentColumns = "movie_id",
             childColumns = "movie_id", onDelete = CASCADE))
 public class VideoEntity implements Video {
 
     @PrimaryKey
     @ColumnInfo(name = "video_id")
+    @NonNull
     private String id;
     @ColumnInfo(name = "movie_id")
     private int  movieId;
@@ -20,12 +22,12 @@ public class VideoEntity implements Video {
     private String type;
 
     @Ignore
-    public VideoEntity(int movieId, String id) {
+    public VideoEntity(int movieId, @NonNull String id) {
         this.movieId = movieId;
         this.id = id;
     }
 
-    public VideoEntity(int movieId, String id, String key, String name, String site, String type) {
+    public VideoEntity(int movieId, @NonNull String id, String key, String name, String site, String type) {
         this.movieId = movieId;
         this.id = id;
         this.key = key;
