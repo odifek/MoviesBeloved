@@ -69,7 +69,7 @@
                     android:id="@+id/movie_detail_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="visible">
+                    android:visibility="invisible">
 
                 <ImageView
                         android:id="@+id/iv_movie_poster_anchor"
