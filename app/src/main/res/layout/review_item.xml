@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools" android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:id="@+id/author_text" tools:text="Rajh Nakamoto"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" android:textStyle="italic"/>
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:id="@+id/review_text"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            tools:text="This is a review of this awesome movie. There is a lot one can say about this movie. One, it is very interesting, two it is very engaging, etc"
+            android:maxLines="3" android:ellipsize="end"/>
+</LinearLayout>
