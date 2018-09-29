@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
+import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
+import com.techbeloved.moviesbeloved.data.models.VideoEntity;
 
 /**
  * Concrete implementation to load movies from the data sources into a cache
@@ -191,6 +193,68 @@ public class MoviesRepository implements MoviesDataSource {
     public void deleteMovie(int movieId) {
         mMoviesLocalDataSource.deleteMovie(movieId);
         if (mCachedMovies != null) mCachedMovies.remove(movieId);
+    }
+
+    /**
+     * @param movieId is the id of the movie you need the reviews
+     * @param callback is used to return the results
+     */
+    @Override
+    public void getReviews(int movieId, @NonNull final LoadReviewsCallback callback) {
+
+        // We are just going to do some basic implementations to test out things actually.
+        // Afterwards, we can make them more robust by incorporating cache
+        mMoviesRemoteDataSource.getReviews(movieId, new LoadReviewsCallback() {
+            @Override
+            public void onReviewsLoaded(List<ReviewEntity> reviews) {
+                callback.onReviewsLoaded(reviews);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                callback.onDataNotAvailable();
+            }
+        });
+    }
+
+    @Override
+    public void getReviews(int movieId, int page, @NonNull LoadReviewsCallback callback) {
+
+    }
+
+    @Override
+    public void saveReview(@NonNull ReviewEntity review) {
+        mMoviesLocalDataSource.saveReview(review);
+    }
+
+    @Override
+    public void deleteReviews(int movieId) {
+        mMoviesLocalDataSource.deleteReviews(movieId);
+    }
+
+    @Override
+    public void getVideos(int movieId, @NonNull final LoadVideosCallback callback) {
+        mMoviesRemoteDataSource.getVideos(movieId, new LoadVideosCallback() {
+            @Override
+            public void onVideosLoaded(List<VideoEntity> videos) {
+                callback.onVideosLoaded(videos);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                callback.onDataNotAvailable();
+            }
+        });
+    }
+
+    @Override
+    public void saveVideo(@NonNull VideoEntity video) {
+        mMoviesLocalDataSource.saveVideo(video);
+    }
+
+    @Override
+    public void deleteVideos(int movieId) {
+        mMoviesLocalDataSource.deleteVideos(movieId);
     }
 
     private MovieEntity getMovieWithId(int movieId) {

@@ -3,6 +3,8 @@ package com.techbeloved.moviesbeloved.data.source.remote;
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
+import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
+import com.techbeloved.moviesbeloved.data.models.VideoEntity;
 import com.techbeloved.moviesbeloved.data.source.MoviesDataSource;
 
 import java.util.List;
@@ -90,45 +92,68 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
         // Not applicable
     }
 
-//    private void getPopularMovies(String sortCriteria, int page) {
-//        Uri.Builder builder = Uri.parse(TMDB_API_BASE_URL).buildUpon();
-//        builder.appendPath(MOVIE_PATH_SEG)
-//                .appendPath(sortCriteria)
-//                .appendQueryParameter(API_KEY_QUERY_PARAM, TMDB_API_KEY)
-//                .appendQueryParameter(PAGE_QUERY_PARAM, String.valueOf(page));
-//        String requestUrl = builder.build().toString();
-//
-//        // Process with volley
-//        RequestQueue queue = Volley.newRequestQueue(this);
-//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-//                Request.Method.GET, requestUrl, null, new Response.Listener<JSONObject>() {
-//            @Override
-//            public void onResponse(JSONObject response) {
-//                List<Movie> movieList = new ArrayList<>();
-//                try {
-//                    JSONArray resultsArray = response.getJSONArray("results");
-//                    for (int i = 0; i < resultsArray.length(); i++) {
-//                        JSONObject jsonMovie = resultsArray.getJSONObject(i);
-//                        Movie movieInfo = MovieUtils.createMovieModel(jsonMovie);
-//                        if (movieInfo != null) {
-//                            movieList.add(movieInfo);
-//                        }
-//                    }
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//
-//                // Update list
-//                mMoviesAdapter.setMovieList(movieList);
-//            }
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//
-//            }
-//        });
-//
-//        // Add the request to the RequestQueue
-//        queue.add(jsonObjectRequest);
-//    }
+    @Override
+    public void getReviews(int movieId, @NonNull final LoadReviewsCallback callback) {
+        mMovieRemoteDao.getReviews(movieId, 1, new LoadReviewsCallback() {
+            @Override
+            public void onReviewsLoaded(List<ReviewEntity> reviews) {
+                callback.onReviewsLoaded(reviews);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                callback.onDataNotAvailable();
+            }
+        });
+    }
+
+    @Override
+    public void getReviews(int movieId, int page, @NonNull final LoadReviewsCallback callback) {
+        mMovieRemoteDao.getReviews(movieId, page, new LoadReviewsCallback() {
+            @Override
+            public void onReviewsLoaded(List<ReviewEntity> reviews) {
+                callback.onReviewsLoaded(reviews);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                callback.onDataNotAvailable();
+            }
+        });
+    }
+
+    @Override
+    public void saveReview(@NonNull ReviewEntity review) {
+        // Not yet implemented
+    }
+
+    @Override
+    public void deleteReviews(int movieId) {
+        // Not applicable
+    }
+
+    @Override
+    public void getVideos(int movieId, @NonNull final LoadVideosCallback callback) {
+        mMovieRemoteDao.getVideos(movieId, new LoadVideosCallback() {
+            @Override
+            public void onVideosLoaded(List<VideoEntity> videos) {
+                callback.onVideosLoaded(videos);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                callback.onDataNotAvailable();
+            }
+        });
+    }
+
+    @Override
+    public void saveVideo(@NonNull VideoEntity video) {
+        // Not applicable
+    }
+
+    @Override
+    public void deleteVideos(int movieId) {
+        // Not applicable
+    }
 }

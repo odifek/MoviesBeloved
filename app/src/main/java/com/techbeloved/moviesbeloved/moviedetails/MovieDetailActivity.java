@@ -5,6 +5,13 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.widget.ContentLoadingProgressBar;
+import androidx.recyclerview.widget.RecyclerView;
+import com.techbeloved.moviesbeloved.YoutubePlayerActivity;
+import com.techbeloved.moviesbeloved.data.models.*;
+import com.techbeloved.moviesbeloved.moviedetails.reviews.ReviewAdapter;
+import com.techbeloved.moviesbeloved.moviedetails.videos.VideoAdapter;
+import com.techbeloved.moviesbeloved.moviedetails.videos.VideoClickCallback;
+import com.techbeloved.moviesbeloved.utils.Constants;
 import timber.log.Timber;
 
 import android.content.Intent;
@@ -21,8 +28,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.techbeloved.moviesbeloved.Injection;
 import com.techbeloved.moviesbeloved.R;
-import com.techbeloved.moviesbeloved.data.models.Movie;
-import com.techbeloved.moviesbeloved.data.models.MovieEntity;
+
+import java.util.List;
 
 import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_ID_EXTRA;
 import static com.techbeloved.moviesbeloved.utils.MovieUtils.getYearFromDate;
@@ -59,6 +66,19 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
             mPresenter.toggleFavorite();
         }
     };
+
+    private VideoClickCallback mVideoOnclickListener = new VideoClickCallback() {
+        @Override
+        public void onClick(Video video) {
+            Timber.i("video onClick was called!");
+            mPresenter.playVideo(video);
+        }
+    };
+
+    private RecyclerView mReviewList;
+    private ReviewAdapter mReviewAdapter;
+    private RecyclerView mVideoList;
+    private VideoAdapter mVideoAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +138,14 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
         mFavoriteFab = findViewById(R.id.favorite_fab);
 
         mFavoriteFab.setOnClickListener(mFavFabOnclickListener);
+
+        mReviewList = findViewById(R.id.review_recycler_view);
+        mReviewAdapter = new ReviewAdapter();
+        mReviewList.setAdapter(mReviewAdapter);
+
+        mVideoList = findViewById(R.id.videos_recycler_view);
+        mVideoAdapter = new VideoAdapter(mVideoOnclickListener);
+        mVideoList.setAdapter(mVideoAdapter);
     }
 
     @Override
@@ -156,8 +184,24 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
     }
 
     @Override
+    public void showReviews(List<ReviewEntity> reviews) {
+        mReviewAdapter.setReviewList(reviews);
+    }
+
+    public void showVideos(List<VideoEntity> videos) {
+        mVideoAdapter.setVideoList(videos);
+    }
+
+    @Override
     public boolean isActive() {
         return mIsActive;
+    }
+
+    @Override
+    public void openPlayer(String youtubeKey) {
+        Intent youtubePlayerIntent = new Intent(this, YoutubePlayerActivity.class);
+        youtubePlayerIntent.putExtra(Constants.YOUTUBE_VIDEO_ID, youtubeKey);
+        startActivity(youtubePlayerIntent);
     }
 
     @Override

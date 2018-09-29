@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Movie;
@@ -38,7 +39,11 @@ import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_ID_EXTRA;
  */
 public class MoviesFragment extends Fragment implements MoviesContract.View {
 
+    private static final String TAG = MoviesFragment.class.getSimpleName();
+
+    private static final String CURRENT_FILTERING = "CURRENT_FILTERING";
     private MoviesContract.Presenter mPresenter;
+    private static MovieFilterType mCurrentFilter;
 
     private MovieAdapter mAdapter;
     RecyclerView.OnScrollListener mOnScrollListener;
@@ -74,10 +79,11 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
      * Any functionality that you would want to persist across pause and resume of fragment, for example,
      * when navigating to a new activity which you plan to return from,
      * such functionality should be place here in onCreate because it only gets executed once, on fragment creation
-     * @param savedInstanceState
+     * @param savedInstanceState is the saved instance bundle
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Timber.i("onCreate is called!");
         super.onCreate(savedInstanceState);
         mAdapter = new MovieAdapter(new MovieClickCallback() {
             @Override
@@ -96,12 +102,14 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
                 mPresenter.loadMoreMovies(page + 1); // The first page is actually 1 not 0, so increment to match the api
             }
         };
-        mPresenter.setShouldReload(true);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        Timber.i("onResume is called");
+        // We can update the filtering from saved state
+        mPresenter.setFiltering(mCurrentFilter);
         mPresenter.start();
     }
 
@@ -116,23 +124,25 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Timber.i("onActivityCreated is called");
+        if (mPresenter != null) mPresenter.setShouldReload(true);
+        // restore state if any saved property
+        if (savedInstanceState != null) {
+            Timber.i("Any saved instance?");
+            mCurrentFilter = (MovieFilterType) savedInstanceState.getSerializable(CURRENT_FILTERING);
+        } else if (mCurrentFilter == null) {
+            mCurrentFilter = MovieFilterType.POPULAR; // Default filter type
+        }
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root =  inflater.inflate(R.layout.fragment_movies, container, false);
-
-        // restore state if any
-        // Only set reload if first time of loading or we are on favorites. Because favorites should
-        // actually refresh each time we return to the listing view
-//        if (savedInstanceState != null) {
-//            Timber.i("Any saved instance?");
-//            mCurrentPage = savedInstanceState.getInt(CURRENT_PAGE);
-//            mPresenter.setShouldReload(false);
-//        } else {
-//            mPresenter.setShouldReload(true);
-//            mCurrentPage = 1;
-//        }
-//        mPresenter.setNextPageToLoad(mCurrentPage);
+        Timber.i("onCreateView is called");
 
         // Set up movies view
 
@@ -151,13 +161,16 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
+        Timber.i("onSavedInstanceState is called");
         outState.putInt(CURRENT_PAGE, mCurrentPage);
+        outState.putSerializable(CURRENT_FILTERING, mPresenter.getFiltering());
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        Timber.i("onPause is called");
         if (mPresenter.getFiltering() != MovieFilterType.FAVORITES) {
             mPresenter.setShouldReload(false);
         } else {
@@ -169,6 +182,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.movies_fragment_menu, menu);
         // Initialise menu items
+        Timber.i("onCreateOptionsMenu is called");
         switch (mPresenter.getFiltering()) {
             case TOP_RATED:
                 menu.findItem(R.id.top_rated_filter_menu).setChecked(true);
@@ -186,20 +200,23 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.top_rated_filter_menu:
-                mPresenter.setFiltering(MovieFilterType.TOP_RATED);
+                mCurrentFilter = MovieFilterType.TOP_RATED;
+                mPresenter.setFiltering(mCurrentFilter);
                 if (!item.isChecked()) {
                     // Only reload if the it's not the currently selected filter
                     reloadMovies();
                 }
                 break;
             case R.id.popularity_filter_menu:
-                mPresenter.setFiltering(MovieFilterType.POPULAR);
+                mCurrentFilter = MovieFilterType.POPULAR;
+                mPresenter.setFiltering(mCurrentFilter);
                 if (!item.isChecked()) {
                     reloadMovies();
                 }
                 break;
             case R.id.favorites_filter_menu:
-                mPresenter.setFiltering(MovieFilterType.FAVORITES);
+                mCurrentFilter = MovieFilterType.FAVORITES;
+                mPresenter.setFiltering(mCurrentFilter);
                 if (!item.isChecked()) {
                     Timber.i("Should reload");
                     reloadMovies();
@@ -264,5 +281,9 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
         Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
         intent.putExtra(MOVIE_ID_EXTRA, requestedMovieId);
         startActivity(intent);
+    }
+
+    public static String getTAG() {
+        return TAG;
     }
 }

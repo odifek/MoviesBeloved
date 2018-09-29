@@ -20,8 +20,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".moviedetails.MovieDetailActivity"
-            android:parentActivityName=".movies.MoviesActivity"></activity>
+                android:name=".moviedetails.MovieDetailActivity"
+                android:parentActivityName=".movies.MoviesActivity"
+                android:launchMode="singleTop">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".movies.MoviesActivity"/>
+        </activity>
+        <activity
+                android:name=".YoutubePlayerActivity"
+                android:parentActivityName=".moviedetails.MovieDetailActivity"></activity>
     </application>
 
 </manifest>

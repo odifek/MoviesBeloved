@@ -22,7 +22,10 @@ public class Injection {
 
         TMDBMovies mDBMovies = TMDBMovies.getInstance(MoviesRequestQueue.getInstance(context));
         return MoviesRepository.getInstance(MoviesRemoteDataSource.getInstance(mDBMovies),
-                                              MoviesLocalDataSource.getInstance(new AppExecutors(), database.moviesDao()));
+                                              MoviesLocalDataSource.getInstance(new AppExecutors(),
+                                                      database.moviesDao(),
+                                                      database.reviewsDao(),
+                                                      database.videosDao()));
 
     }
 }

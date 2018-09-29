@@ -5,8 +5,7 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.TimeUtils;
 
-import com.techbeloved.moviesbeloved.data.models.Movie;
-import com.techbeloved.moviesbeloved.data.models.MovieEntity;
+import com.techbeloved.moviesbeloved.data.models.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -91,5 +90,45 @@ public class MovieUtils {
         SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.getDefault());
         year = yearFormat.format(date);
         return year;
+    }
+
+    public static ReviewEntity createReviewModel(int movieId, JSONObject jsonReview) {
+        try {
+            String reviewId = jsonReview.getString("id");
+            String author = jsonReview.optString("author");
+            String content = jsonReview.optString("content");
+            String url = jsonReview.optString("url");
+
+            Review review = new ReviewEntity(movieId, reviewId);
+            if (!TextUtils.isEmpty(author)) review.setAuthor(author);
+            if (!TextUtils.isEmpty(content)) review.setContent(content);
+            if (!TextUtils.isEmpty(url)) review.setUrl(url);
+
+            return (ReviewEntity) review;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static VideoEntity createVideoModel(int movieId, JSONObject jsonVideo) {
+        try {
+            String videoId = jsonVideo.getString("id");
+            String key = jsonVideo.optString("key");
+            String name = jsonVideo.optString("name");
+            String site = jsonVideo.optString("site");
+            String type = jsonVideo.optString("type");
+
+            Video video = new VideoEntity(movieId, videoId);
+            if (!TextUtils.isEmpty(key)) video.setKey(key);
+            if (!TextUtils.isEmpty(name)) video.setName(name);
+            if (!TextUtils.isEmpty(site)) video.setSite(site);
+            if (!TextUtils.isEmpty(type)) video.setType(type);
+
+            return (VideoEntity) video;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

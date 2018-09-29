@@ -1,11 +1,12 @@
 package com.techbeloved.moviesbeloved.moviedetails;
 
-import com.techbeloved.moviesbeloved.data.models.Movie;
-import com.techbeloved.moviesbeloved.data.models.MovieEntity;
+import com.techbeloved.moviesbeloved.data.models.*;
 import com.techbeloved.moviesbeloved.data.source.MoviesDataSource;
 import com.techbeloved.moviesbeloved.data.source.MoviesRepository;
 
 import androidx.annotation.NonNull;
+
+import java.util.List;
 
 import static com.bumptech.glide.util.Preconditions.checkNotNull;
 
@@ -52,6 +53,32 @@ public class MovieDetailPresenter implements MovieDetailContract.Presenter {
                 // TODO: 9/21/18 may be some error and data could not be loaded. consider what to do
             }
         });
+
+        // Get the reviews
+        mMoviesRepository.getReviews(mMovieId, new MoviesDataSource.LoadReviewsCallback() {
+            @Override
+            public void onReviewsLoaded(List<ReviewEntity> reviews) {
+                showReviews(reviews);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                // TODO: 9/26/18 Show no reviews found
+            }
+        });
+
+        // Get Videos
+        mMoviesRepository.getVideos(mMovieId, new MoviesDataSource.LoadVideosCallback() {
+            @Override
+            public void onVideosLoaded(List<VideoEntity> videos) {
+                mMovieDetailView.showVideos(videos);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                // TODO: 9/26/18 Show no videos message
+            }
+        });
     }
 
     private void showMovie(MovieEntity movie) {
@@ -74,6 +101,15 @@ public class MovieDetailPresenter implements MovieDetailContract.Presenter {
                 mMovieDetailView.showMovieFavorited();
             }
         }
+    }
+
+    @Override
+    public void playVideo(Video video) {
+        mMovieDetailView.openPlayer(video.getKey());
+    }
+
+    private void showReviews(List<ReviewEntity> reviews){
+        mMovieDetailView.showReviews(reviews);
     }
 
 }
