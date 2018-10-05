@@ -97,7 +97,6 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 Timber.i("Loading page: %s", (page + 1));
-                mPresenter.setNextPageToLoad(page + 1);
                 mCurrentPage = page + 1;
                 mPresenter.loadMoreMovies(page + 1); // The first page is actually 1 not 0, so increment to match the api
             }
@@ -170,7 +169,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     @Override
     public void onPause() {
         super.onPause();
-        Timber.i("onPause is called");
+        // Because we only want favorite to reload perhaps new stuff has been added
         if (mPresenter.getFiltering() != MovieFilterType.FAVORITES) {
             mPresenter.setShouldReload(false);
         } else {
@@ -203,7 +202,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
                 mCurrentFilter = MovieFilterType.TOP_RATED;
                 mPresenter.setFiltering(mCurrentFilter);
                 if (!item.isChecked()) {
-                    // Only reload if the it's not the currently selected filter
+                    // Only reload if the item is not the currently selected filter
                     reloadMovies();
                 }
                 break;
@@ -234,7 +233,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     private void reloadMovies() {
         mAdapter.clear();
         ((EndlessScrollListener) mOnScrollListener).resetState();
-        mPresenter.reloadMovies();
+        mPresenter.loadMovies(true);
     }
 
     @Override

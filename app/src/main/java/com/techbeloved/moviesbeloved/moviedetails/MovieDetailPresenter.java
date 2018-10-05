@@ -88,16 +88,17 @@ public class MovieDetailPresenter implements MovieDetailContract.Presenter {
 
     @Override
     public void toggleFavorite() {
-        if (mCurrentMovie != null) {
-            if (mCurrentMovie.isFavorite()) {
+        MovieEntity currentMovie = getCurrentMovie();
+        if (currentMovie != null) {
+            if (currentMovie.isFavorite()) {
                 // Remove from favorites
-                mCurrentMovie.setFavorite(false);
-                mMoviesRepository.deleteMovie(mMovieId);
+                currentMovie.setFavorite(false);
+                mMoviesRepository.deleteMovie(currentMovie.getId());
                 mMovieDetailView.showMovieUnfavorited();
             } else {
                 // Save as a favorite
-                mCurrentMovie.setFavorite(true);
-                mMoviesRepository.saveMovie(mCurrentMovie);
+                currentMovie.setFavorite(true);
+                mMoviesRepository.saveMovie(currentMovie);
                 mMovieDetailView.showMovieFavorited();
             }
         }
@@ -106,6 +107,14 @@ public class MovieDetailPresenter implements MovieDetailContract.Presenter {
     @Override
     public void playVideo(Video video) {
         mMovieDetailView.openPlayer(video.getKey());
+    }
+
+    public MovieEntity getCurrentMovie() {
+        return mCurrentMovie;
+    }
+
+    public void setCurrentMovie(MovieEntity currentMovie) {
+        this.mCurrentMovie = currentMovie;
     }
 
     private void showReviews(List<ReviewEntity> reviews){

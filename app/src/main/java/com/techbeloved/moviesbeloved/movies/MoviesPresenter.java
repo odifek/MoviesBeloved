@@ -25,9 +25,6 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     // The default filter is most popular movies
     private MovieFilterType mCurrentFiltering;
 
-    // Next page that should be loaded
-    private int mNextPageToLoad = 1;
-
     private boolean mShouldReload;
 
     public MoviesPresenter(@NonNull MoviesRepository moviesRepository, @NonNull MoviesContract.View moviesView) {
@@ -39,7 +36,7 @@ public class MoviesPresenter implements MoviesContract.Presenter {
 
     @Override
     public void start() {
-        loadMovies();
+        loadMovies(mShouldReload);
     }
 
     @Override
@@ -48,9 +45,8 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     }
 
     @Override
-    public void loadMovies() {
-        Timber.i("Should reload? %s", mShouldReload);
-        if (mShouldReload) { // This is first page or we're loading favorites
+    public void loadMovies(boolean forceReload) {
+        if (forceReload) { // This is first page or we're loading favorites
             mMoviesView.setLoadingIndicator(true);
             mMoviesRepository.getMovies(mCurrentFiltering, new MoviesDataSource.LoadMoviesCallback() {
                 @Override
@@ -64,6 +60,9 @@ public class MoviesPresenter implements MoviesContract.Presenter {
 
                 @Override
                 public void onDataNotAvailable() {
+                    if (!mMoviesView.isActive()) {
+                        return;
+                    }
                     mMoviesView.setLoadingIndicator(false);
                     mMoviesView.showNoMovies();
                 }
@@ -114,24 +113,6 @@ public class MoviesPresenter implements MoviesContract.Presenter {
     @Override
     public MovieFilterType getFiltering() {
         return mCurrentFiltering;
-    }
-
-    @Override
-    public void setNextPageToLoad(int nextPage) {
-        mNextPageToLoad = nextPage;
-    }
-
-    @Override
-    public int getNextPageToLoad() {
-        return mNextPageToLoad;
-    }
-
-    @Override
-    public void reloadMovies() {
-        // Reset to page one
-        mNextPageToLoad = 1;
-        mShouldReload = true;
-        loadMovies();
     }
 
     @Override
