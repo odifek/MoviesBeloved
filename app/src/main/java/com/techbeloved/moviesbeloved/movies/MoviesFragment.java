@@ -12,10 +12,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
+import com.techbeloved.moviesbeloved.databinding.FragmentMoviesBinding;
 import com.techbeloved.moviesbeloved.moviedetails.MovieDetailActivity;
 import com.techbeloved.moviesbeloved.utils.EndlessScrollListener;
 
@@ -47,15 +49,12 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
 
     private MovieAdapter mAdapter;
     RecyclerView.OnScrollListener mOnScrollListener;
-    RecyclerView mRecyclerView;
     private GridLayoutManager mLayoutManager;
 
     // Current page of movies list
     private int mCurrentPage;
     private static final String CURRENT_PAGE = "CURRENT_PAGE";
 
-    private TextView mNoMoviesTextView;
-    private ContentLoadingProgressBar mProgressBar;
 
     public MoviesFragment() {
         // Required empty public constructor
@@ -85,12 +84,9 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     public void onCreate(Bundle savedInstanceState) {
         Timber.i("onCreate is called!");
         super.onCreate(savedInstanceState);
-        mAdapter = new MovieAdapter(new MovieClickCallback() {
-            @Override
-            public void onClick(Movie movie) {
-                // COMPLETED: 9/21/18 implement onclick
-                mPresenter.openMovieDetails(movie.getId());
-            }
+        mAdapter = new MovieAdapter(movie -> {
+            // COMPLETED: 9/21/18 implement onclick
+            mPresenter.openMovieDetails(movie.getId());
         });
         mLayoutManager = new GridLayoutManager(getContext(), getContext().getResources().getInteger(R.integer.movie_grid_span_count));
         mOnScrollListener = new EndlessScrollListener(mLayoutManager) {
@@ -136,26 +132,17 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
         }
     }
 
+    private FragmentMoviesBinding mBinding;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View root =  inflater.inflate(R.layout.fragment_movies, container, false);
-        Timber.i("onCreateView is called");
-
-        // Set up movies view
-
-        mNoMoviesTextView = root.findViewById(R.id.empty_textview);
-        mProgressBar = root.findViewById(R.id.loading_progressbar);
-
-        mRecyclerView = root.findViewById(R.id.movie_list);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(mAdapter);
-
-        mRecyclerView.setOnScrollListener(mOnScrollListener);
-
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_movies, container, false);
+        mBinding.movieList.setAdapter(mAdapter);
+        mBinding.movieList.setLayoutManager(mLayoutManager);
+        mBinding.movieList.setOnScrollListener(mOnScrollListener);
         setHasOptionsMenu(true);
-        return root;
+        return mBinding.getRoot();
     }
 
     @Override
@@ -238,16 +225,11 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
 
     @Override
     public void setLoadingIndicator(boolean active) {
-        if (active) {
-            mProgressBar.show();
-        } else {
-            mProgressBar.hide();
-        }
+        mBinding.setIsLoading(active);
     }
 
     @Override
     public void showMovies(List<MovieEntity> movies) {
-        mNoMoviesTextView.setVisibility(View.VISIBLE);
         mAdapter.clear();
         mAdapter.setMovieList(movies);
     }
@@ -264,8 +246,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
 
     @Override
     public void showNoMovies() {
-        mNoMoviesTextView.setText("No movies to show");
-        mNoMoviesTextView.setVisibility(View.VISIBLE);
+        mBinding.setIsEmpty(true);
     }
 
     @Override

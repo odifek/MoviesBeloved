@@ -5,9 +5,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.widget.ContentLoadingProgressBar;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import com.techbeloved.moviesbeloved.YoutubePlayerActivity;
 import com.techbeloved.moviesbeloved.data.models.*;
+import com.techbeloved.moviesbeloved.databinding.ActivityMovieDetailBinding;
 import com.techbeloved.moviesbeloved.moviedetails.reviews.ReviewAdapter;
 import com.techbeloved.moviesbeloved.moviedetails.videos.VideoAdapter;
 import com.techbeloved.moviesbeloved.moviedetails.videos.VideoClickCallback;
@@ -44,22 +46,6 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
 
     private int mCurrentMovieId;
 
-    private CollapsingToolbarLayout mCollapsingToolbar;
-    private TextView mSynopsisText;
-    private ImageView mBackdropImage;
-    private ImageView mPosterImage;
-    private TextView mYearText;
-    private TextView mRatingText;
-    private TextView mTitleText;
-    private RatingBar mRatingBar;
-    private TextView mGenreText;
-
-    private ContentLoadingProgressBar mProgressBar;
-    private ConstraintLayout mContentLayoutView;
-    private CoordinatorLayout mMainCoordinatorLayout;
-
-    private FloatingActionButton mFavoriteFab;
-
     private View.OnClickListener mFavFabOnclickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -75,17 +61,18 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
         }
     };
 
-    private RecyclerView mReviewList;
     private ReviewAdapter mReviewAdapter;
-    private RecyclerView mVideoList;
     private VideoAdapter mVideoAdapter;
+
+    private ActivityMovieDetailBinding mBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_movie_detail);
+        mBinding =
+                DataBindingUtil.setContentView(this, R.layout.activity_movie_detail);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = mBinding.toolbar;
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -120,49 +107,28 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
     }
 
     private void setupViews() {
-        mCollapsingToolbar = findViewById(R.id.collapsing_toolbar);
-        mTitleText = findViewById(R.id.original_title_text);
-        mBackdropImage = findViewById(R.id.backdrop);
-        mPosterImage = findViewById(R.id.iv_movie_poster_anchor);
-        mRatingText = findViewById(R.id.user_rating);
-        mSynopsisText = findViewById(R.id.synopsis_text);
-        mRatingBar = findViewById(R.id.ratingBar);
-        mYearText = findViewById(R.id.release_year_text);
-        mGenreText = findViewById(R.id.genre_text);
-        mRatingBar.setMax(5);
-        mRatingBar.setStepSize(0.5f);
+        mBinding.ratingBar.setMax(5);
+        mBinding.ratingBar.setStepSize(0.5f);
 
-        mProgressBar = findViewById(R.id.loading_progressbar);
-        mContentLayoutView = findViewById(R.id.movie_detail_view);
-        mMainCoordinatorLayout = findViewById(R.id.main_coordinator_layout);
-        mFavoriteFab = findViewById(R.id.favorite_fab);
+        mBinding.favoriteFab.setOnClickListener(mFavFabOnclickListener);
 
-        mFavoriteFab.setOnClickListener(mFavFabOnclickListener);
-
-        mReviewList = findViewById(R.id.review_recycler_view);
         mReviewAdapter = new ReviewAdapter();
-        mReviewList.setAdapter(mReviewAdapter);
+        mBinding.reviewRecyclerView.setAdapter(mReviewAdapter);
 
-        mVideoList = findViewById(R.id.videos_recycler_view);
         mVideoAdapter = new VideoAdapter(mVideoOnclickListener);
-        mVideoList.setAdapter(mVideoAdapter);
+        mBinding.videosRecyclerView.setAdapter(mVideoAdapter);
+
     }
 
     @Override
     public void setLoadingIndicator(boolean active) {
-        if (active) {
-            mProgressBar.setVisibility(View.INVISIBLE);
-            mProgressBar.show();
-        } else {
-            mProgressBar.hide();
-            mProgressBar.setVisibility(View.GONE);
-        }
+        mBinding.setIsLoading(active);
     }
 
     @Override
     public void showMovieFavorited() {
         showFavoriteIcon(true);
-        Snackbar.make(mMainCoordinatorLayout,
+        Snackbar.make(mBinding.mainCoordinatorLayout,
                 "Movie added to favorites",
                 Snackbar.LENGTH_SHORT
         ).show();
@@ -171,7 +137,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
     @Override
     public void showMovieUnfavorited() {
         showFavoriteIcon(false);
-        Snackbar.make(mMainCoordinatorLayout,
+        Snackbar.make(mBinding.mainCoordinatorLayout,
                 "Movie removed from favorites",
                 Snackbar.LENGTH_SHORT
         ).show();
@@ -179,7 +145,6 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
 
     @Override
     public void showMovieDetail(MovieEntity movie) {
-        mContentLayoutView.setVisibility(View.VISIBLE);
         displayMovieInfo(movie);
     }
 
@@ -210,54 +175,10 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
     }
 
     private void displayMovieInfo(Movie movieInfo) {
-        mTitleText.setText(movieInfo.getTitle());
-        mSynopsisText.setText(movieInfo.getSynopsis());
-        mCollapsingToolbar.setTitle(movieInfo.getTitle());
-
-        String year = getYearFromDate(movieInfo.getReleaseDate());
-        mYearText.setText(year);
-
-        mRatingText.setText(String.valueOf(movieInfo.getUserRating()));
-        mRatingBar.setRating(movieInfo.getUserRating() / 2);
-
-        if (!movieInfo.getGenres().isEmpty()) {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0, j = movieInfo.getGenres().size(); i < j; i++) {
-                builder.append(movieInfo.getGenres().get(i));
-                if (i != j - 1) builder.append(" | ");
-            }
-            mGenreText.setText(builder.toString());
-        }
-
-        if (!TextUtils.isEmpty(movieInfo.getBackdropUrl())) {
-            Glide.with(mBackdropImage.getContext())
-                    .load(movieInfo.getBackdropUrl())
-                    .into(mBackdropImage);
-        } else {
-            Glide.with(mBackdropImage.getContext())
-                    .load(R.drawable.dancers)
-                    .into(mBackdropImage);
-        }
-
-        if (!TextUtils.isEmpty(movieInfo.getPosterUrl())) {
-            Glide.with(mPosterImage.getContext())
-                    .load(movieInfo.getPosterUrl())
-                    .into(mPosterImage);
-        } else {
-            Glide.with(mPosterImage.getContext())
-                    .load(R.drawable.dancers)
-                    .into(mPosterImage);
-        }
-        // Update favorite icon
-        showFavoriteIcon(movieInfo.isFavorite());
+        mBinding.setMovie(movieInfo);
     }
 
     private void showFavoriteIcon(boolean isFavorite) {
-        Timber.i("showFavoriteIcon is called");
-        if (isFavorite) mFavoriteFab.setImageResource(R.drawable.ic_favorite);
-        else mFavoriteFab.setImageResource(R.drawable.ic_unfavorite);
-        if (mFavoriteFab.getDrawable() == null) {
-            Timber.i("No drawable set!");
-        }
+        mBinding.setIsFavorite(isFavorite);
     }
 }

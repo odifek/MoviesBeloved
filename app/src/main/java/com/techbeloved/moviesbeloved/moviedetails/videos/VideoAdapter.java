@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubeThumbnailLoader;
@@ -13,6 +14,7 @@ import com.techbeloved.moviesbeloved.BuildConfig;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Video;
 import com.techbeloved.moviesbeloved.data.models.VideoEntity;
+import com.techbeloved.moviesbeloved.databinding.VideoItemBinding;
 import com.techbeloved.moviesbeloved.utils.Constants;
 import timber.log.Timber;
 
@@ -38,9 +40,11 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     @NonNull
     @Override
     public VideoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.video_item, parent, false);
-        return new VideoViewHolder(view);
+        VideoItemBinding binding = DataBindingUtil
+                .inflate(LayoutInflater.from(parent.getContext()),
+                        R.layout.video_item, parent, false);
+        binding.setCallback(mVideoClickCallback);
+        return new VideoViewHolder(binding);
     }
 
     @Override
@@ -51,34 +55,8 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
         final Video video = getItem(position);
 
-        holder.videoTitle.setText(video.getName());
-        holder.videoType.setText(video.getType());
-
-
-        holder.videoThumbnail.initialize(Constants.YOUTUBE_DEVELOPER_API_KEY, new YouTubeThumbnailView.OnInitializedListener() {
-            @Override
-            public void onInitializationSuccess(YouTubeThumbnailView youTubeThumbnailView, final YouTubeThumbnailLoader youTubeThumbnailLoader) {
-                youTubeThumbnailLoader.setVideo(video.getKey());
-
-                youTubeThumbnailLoader.setOnThumbnailLoadedListener(new YouTubeThumbnailLoader.OnThumbnailLoadedListener() {
-                    @Override
-                    public void onThumbnailLoaded(YouTubeThumbnailView youTubeThumbnailView, String s) {
-                        youTubeThumbnailLoader.release();
-                    }
-
-                    @Override
-                    public void onThumbnailError(YouTubeThumbnailView youTubeThumbnailView, YouTubeThumbnailLoader.ErrorReason errorReason) {
-                        Timber.e("Youtube Thumbnail Error!");
-                    }
-                });
-            }
-
-            @Override
-            public void onInitializationFailure(YouTubeThumbnailView youTubeThumbnailView, YouTubeInitializationResult youTubeInitializationResult) {
-                Timber.e("Youtube Initialization failure");
-            }
-        });
-
+        holder.binding.setVideo(video);
+        holder.binding.executePendingBindings();
     }
 
     @Override
@@ -90,24 +68,13 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         return mVideoList.get(position);
     }
 
-    class VideoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView videoTitle;
-        TextView videoType;
-        YouTubeThumbnailView videoThumbnail;
+    class VideoViewHolder extends RecyclerView.ViewHolder {
+        final VideoItemBinding binding;
 
-        VideoViewHolder(@NonNull View itemView) {
-            super(itemView);
-            videoTitle = itemView.findViewById(R.id.video_title);
-            videoType = itemView.findViewById(R.id.video_type_text);
-            videoThumbnail = itemView.findViewById(R.id.video_thumbnail);
-
-            // Listen for clicks
-            itemView.setOnClickListener(this);
+        VideoViewHolder(@NonNull VideoItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
 
-        @Override
-        public void onClick(View view) {
-            mVideoClickCallback.onClick(getItem(getAdapterPosition()));
-        }
     }
 }

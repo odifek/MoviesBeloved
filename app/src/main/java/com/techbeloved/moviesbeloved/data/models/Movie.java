@@ -14,6 +14,8 @@ public interface Movie {
     List<String> getGenres();
     boolean isFavorite();
 
+    int getRuntime();
+
     void setPosterUrl(String posterUrl);
     void setBackdropUrl(String backdropUrl);
     void setSynopsis(String synopsis);
@@ -23,4 +25,6 @@ public interface Movie {
     void setFavorite(boolean favorite);
     void setId(int id);
     void setTitle(String title);
+
+    void setRuntime(int runtime);
 }

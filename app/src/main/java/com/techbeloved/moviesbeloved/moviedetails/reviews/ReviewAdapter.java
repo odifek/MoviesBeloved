@@ -5,10 +5,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Review;
 import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
+import com.techbeloved.moviesbeloved.databinding.ReviewItemBinding;
 
 import java.util.List;
 
@@ -24,9 +26,10 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     @NonNull
     @Override
     public ReviewViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.review_item, parent, false);
-        return new ReviewViewHolder(view);
+        ReviewItemBinding binding = DataBindingUtil
+                .inflate(LayoutInflater.from(parent.getContext()),
+                        R.layout.review_item, parent, false);
+        return new ReviewViewHolder(binding);
     }
 
     @Override
@@ -37,9 +40,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
         Review review = getItem(position);
 
-        holder.reviewAuthor.setText(review.getAuthor());
-
-        holder.reviewContent.setText(review.getContent());
+        holder.binding.setReview(review);
+        holder.binding.executePendingBindings();
     }
 
     @Override
@@ -52,13 +54,11 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     }
 
     class ReviewViewHolder extends RecyclerView.ViewHolder {
-        TextView reviewAuthor;
-        TextView reviewContent;
+        final ReviewItemBinding binding;
 
-        ReviewViewHolder(@NonNull View itemView) {
-            super(itemView);
-            reviewAuthor = itemView.findViewById(R.id.author_text);
-            reviewContent = itemView.findViewById(R.id.review_text);
+        ReviewViewHolder(@NonNull ReviewItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 }

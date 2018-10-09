@@ -41,6 +41,7 @@ public class MovieUtils {
             String backdropPath = jsonMovie.optString("backdrop_path");
             String originalTitle = jsonMovie.optString("original_title");
             JSONArray genresJsonArray = jsonMovie.optJSONArray("genres");
+            int runtime = jsonMovie.optInt("runtime");
 
             List<String> genreList = new ArrayList<>();
             if (genresJsonArray != null) {
@@ -56,6 +57,7 @@ public class MovieUtils {
             movieInfo.setSynopsis(synopsis);
             movieInfo.setReleaseDate(releaseDate);
             movieInfo.setUserRating(rating);
+            movieInfo.setRuntime(runtime);
 
             if (!TextUtils.isEmpty(backdropPath)) {
                 movieInfo.setBackdropUrl(buildImageUrl(backdropPath, DEFAULT_BACKDROP_SIZE));
@@ -90,6 +92,18 @@ public class MovieUtils {
         SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.getDefault());
         year = yearFormat.format(date);
         return year;
+    }
+
+    public static String getGenres(List<String> genres) {
+        if (genres != null && !genres.isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0, j = genres.size(); i < j; i++) {
+                builder.append(genres.get(i));
+                if (i != j - 1) builder.append(" | ");
+            }
+            return builder.toString();
+        }
+        return "";
     }
 
     public static ReviewEntity createReviewModel(int movieId, JSONObject jsonReview) {

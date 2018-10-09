@@ -15,6 +15,12 @@ public interface Video {
     String getKey();
     String getName();
     String getSite();
+
+    /**
+     * Whether it is trailer or video clip aor whatever
+     *
+     * @return
+     */
     String getType();
 
     /**

@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.databinding.DataBindingUtil;
 import com.bumptech.glide.Glide;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Movie;
@@ -15,6 +16,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.techbeloved.moviesbeloved.databinding.MovieItemBinding;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
     private List<MovieEntity> mMovieList;
@@ -37,30 +39,17 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.movie_item, parent, false);
-        return new MovieViewHolder(view);
+        MovieItemBinding binding = DataBindingUtil
+                .inflate(LayoutInflater.from(parent.getContext()),
+                        R.layout.movie_item, parent, false);
+        binding.setCallback(mMovieClickCallback);
+        return new MovieViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-
-        // No data yet
-        if (mMovieList == null) return;
-
-        Movie movie = getItem(position);
-
-        holder.movieTitleText.setText(movie.getTitle());
-
-        String rating = String.valueOf(movie.getUserRating());
-        holder.movieRatingText.setText(rating);
-
-        String posterUrl = movie.getPosterUrl();
-        if (posterUrl != null) {
-            Glide.with(holder.moviePosterImage.getContext())
-                    .load(posterUrl)
-                    .into(holder.moviePosterImage);
-        }
+        holder.binding.setMovie(mMovieList.get(position));
+        holder.binding.executePendingBindings();
     }
 
     @Override
@@ -80,23 +69,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     }
 
-    class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        ImageView moviePosterImage;
-        TextView movieTitleText;
-        TextView movieRatingText;
+    class MovieViewHolder extends RecyclerView.ViewHolder {
+        final MovieItemBinding binding;
 
-        MovieViewHolder(@NonNull View itemView) {
-            super(itemView);
-            moviePosterImage = itemView.findViewById(R.id.iv_movie_poster);
-            movieTitleText = itemView.findViewById(R.id.tv_title_movie);
-            movieRatingText = itemView.findViewById(R.id.tv_rating_value);
-
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View view) {
-            mMovieClickCallback.onClick(getItem(getAdapterPosition()));
+        MovieViewHolder(@NonNull MovieItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 

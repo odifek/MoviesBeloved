@@ -41,6 +41,9 @@ public class MovieEntity implements Movie {
     @ColumnInfo(name = "is_favorite")
     private boolean isFavorite;
 
+    @ColumnInfo(name = "runtime")
+    private int runtime;
+
     public MovieEntity() {
 
     }
@@ -59,6 +62,11 @@ public class MovieEntity implements Movie {
 
     public void setTitle(@Nullable String title) {
         this.title = title;
+    }
+
+    @Override
+    public void setRuntime(int runtime) {
+        this.runtime = runtime;
     }
 
     @Override
@@ -139,6 +147,11 @@ public class MovieEntity implements Movie {
     @Override
     public boolean isFavorite() {
         return isFavorite;
+    }
+
+    @Override
+    public int getRuntime() {
+        return runtime;
     }
 
     @Override

@@ -11,7 +11,7 @@ import androidx.room.TypeConverters;
 import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
 import com.techbeloved.moviesbeloved.data.models.VideoEntity;
 
-@Database(entities = {MovieEntity.class, ReviewEntity.class, VideoEntity.class}, version = 2)
+@Database(entities = {MovieEntity.class, ReviewEntity.class, VideoEntity.class}, version = 3)
 @TypeConverters({DateConverter.class, ListConverter.class})
 public abstract class FavoriteDatabase extends RoomDatabase {
     private static FavoriteDatabase INSTANCE;
@@ -28,6 +28,7 @@ public abstract class FavoriteDatabase extends RoomDatabase {
             if (INSTANCE == null) {
                 INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                         FavoriteDatabase.class, "Movies.db")
+                        .fallbackToDestructiveMigration()
                         .build();
             }
         }

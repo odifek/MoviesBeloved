@@ -1,34 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/movie_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <data>
 
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        tools:listitem="@layout/movie_item" />
+        <variable
+                name="isLoading"
+                type="boolean"/>
 
-    <TextView
-        android:id="@+id/empty_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        tools:text="No movies to show" />
+        <variable
+                name="isEmpty"
+                type="boolean"/>
+    </data>
 
-    <androidx.core.widget.ContentLoadingProgressBar
-        android:id="@+id/loading_progressbar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="?android:progressBarStyleLarge"
-        android:layout_gravity="center"/>
-</LinearLayout>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/movie_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar"
+                app:visibleGone="@{!isEmpty}"
+                tools:listitem="@layout/movie_item"/>
+
+        <TextView
+                android:id="@+id/empty_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:visibleGone="@{isEmpty}"
+                android:text="No movies to show"/>
+
+        <androidx.core.widget.ContentLoadingProgressBar
+                android:id="@+id/loading_progressbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:progressBarStyleLarge"
+                app:visibleGone="@{isLoading}"
+                android:layout_gravity="center"/>
+    </LinearLayout>
+</layout>
