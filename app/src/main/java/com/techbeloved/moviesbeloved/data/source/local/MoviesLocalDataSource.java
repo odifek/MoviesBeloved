@@ -1,7 +1,6 @@
 package com.techbeloved.moviesbeloved.data.source.local;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
@@ -11,6 +10,7 @@ import com.techbeloved.moviesbeloved.data.source.MoviesDataSource;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import io.reactivex.Flowable;
 
 import static com.bumptech.glide.util.Preconditions.checkNotNull;
 
@@ -22,14 +22,10 @@ public class MoviesLocalDataSource implements MoviesDataSource {
     private static volatile MoviesLocalDataSource INSTANCE;
 
     private final FavoriteDatabase mDatabase;
-    private MediatorLiveData<List<MovieEntity>> mObservableMovies;
+
 
     private MoviesLocalDataSource(final FavoriteDatabase database) {
         mDatabase = database;
-        mObservableMovies = new MediatorLiveData<>();
-
-        mObservableMovies.addSource(mDatabase.moviesDao().getMovies(),
-                movieEntities -> mObservableMovies.postValue(movieEntities));
     }
 
     public static MoviesLocalDataSource getInstance(final FavoriteDatabase database) {
@@ -260,8 +256,8 @@ public class MoviesLocalDataSource implements MoviesDataSource {
     }
 
     @Override
-    public LiveData<List<MovieEntity>> getMovies(MovieFilterType filterType) {
-        return mObservableMovies;
+    public Flowable<List<MovieEntity>> getMovies(MovieFilterType filterType) {
+        return mDatabase.moviesDao().getMovies();
     }
 
     @Override

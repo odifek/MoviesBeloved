@@ -11,6 +11,7 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
 import com.techbeloved.moviesbeloved.data.models.VideoEntity;
+import io.reactivex.Flowable;
 
 /**
  * Concrete implementation to load movies from the data sources into a cache
@@ -52,7 +53,7 @@ public class MoviesRepository implements MoviesDataSource {
      *  sends signal when data is ready
      */
     @Override
-    public LiveData<List<MovieEntity>> getMovies(MovieFilterType filterType/*, @NonNull final LoadMoviesCallback callback*/) {
+    public Flowable<List<MovieEntity>> getMovies(MovieFilterType filterType/*, @NonNull final LoadMoviesCallback callback*/) {
 
         // Determine if favorites or others that can be fetched from remote data source
         switch (filterType) {

@@ -7,13 +7,14 @@ import com.techbeloved.moviesbeloved.data.models.*;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import io.reactivex.Flowable;
 
 /**
  * Main entry point for accessing movies data
  */
 public interface MoviesDataSource {
     // Use LiveData onwards
-    LiveData<List<MovieEntity>> getMovies(MovieFilterType filterType);
+    Flowable<List<MovieEntity>> getMovies(MovieFilterType filterType);
 
     LiveData<MovieEntity> getMovie(int movieId);
 

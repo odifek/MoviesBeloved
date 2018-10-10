@@ -1,35 +1,55 @@
 package com.techbeloved.moviesbeloved.movies;
 
-import android.app.Application;
-import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
-import com.techbeloved.moviesbeloved.MovieFilterType;
-import com.techbeloved.moviesbeloved.MoviesApp;
+import androidx.lifecycle.*;
+import com.techbeloved.moviesbeloved.common.domain.LoadFavoriteMoviesUseCase;
+import com.techbeloved.moviesbeloved.common.domain.LoadMoviesUseCase;
+import com.techbeloved.moviesbeloved.common.viewmodel.Response;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
+import com.techbeloved.moviesbeloved.rx.SchedulersFacade;
+import io.reactivex.disposables.CompositeDisposable;
 
 import java.util.List;
 
-public class MoviesViewModel extends AndroidViewModel {
+public class MoviesViewModel extends ViewModel {
 
-    private MediatorLiveData<List<MovieEntity>> mObservableMovies;
+    private final LoadFavoriteMoviesUseCase loadFavoriteMoviesUseCase;
+
+    private final SchedulersFacade schedulersFacade;
+
+    private final CompositeDisposable disposables = new CompositeDisposable();
+
+    private final MutableLiveData<Response<List<MovieEntity>>> response =
+            new MutableLiveData<>();
 
 
-    public MoviesViewModel(@NonNull Application application) {
-        super(application);
+    public MoviesViewModel(LoadFavoriteMoviesUseCase favoriteMoviesUseCase, SchedulersFacade schedulersFacade) {
+        this.loadFavoriteMoviesUseCase = favoriteMoviesUseCase;
+        this.schedulersFacade = schedulersFacade;
 
-        mObservableMovies = new MediatorLiveData<>();
-        mObservableMovies.setValue(null);
-
-        LiveData<List<MovieEntity>> movies = ((MoviesApp) application).getRepository()
-                .getMovies(MovieFilterType.FAVORITES);
-
-        // observe the changes of the movies from the database and forward them
-        mObservableMovies.addSource(movies, mObservableMovies::setValue);
     }
 
-    public LiveData<List<MovieEntity>> getMovies() {
-        return mObservableMovies;
+    @Override
+    protected void onCleared() {
+        disposables.clear();
+    }
+
+    MutableLiveData<Response<List<MovieEntity>>> response() {
+        return response;
+    }
+
+    void loadFavoriteMovies() {
+        loadMovies(loadFavoriteMoviesUseCase);
+    }
+
+    private void loadMovies(LoadMoviesUseCase loadMoviesUseCase) {
+        disposables.add(loadMoviesUseCase.execute()
+                .subscribeOn(schedulersFacade.io())
+                .observeOn(schedulersFacade.ui())
+                .doOnSubscribe(__ -> response.setValue(Response.loading()))
+                .subscribe(
+                        movieEntities -> response.setValue(Response.success(movieEntities)),
+                        throwable -> response.setValue(Response.error(throwable))
+                )
+        );
     }
 }

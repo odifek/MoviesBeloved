@@ -1,7 +1,6 @@
 package com.techbeloved.moviesbeloved.data.source.local;
 
 import androidx.lifecycle.LiveData;
-import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 
 import java.util.List;
@@ -11,12 +10,13 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
+import io.reactivex.Flowable;
 
 @Dao
 public interface MoviesDao {
 
     @Query("SELECT * FROM movies")
-    LiveData<List<MovieEntity>> getMovies();
+    Flowable<List<MovieEntity>> getMovies();
 
     @Query("SELECT * FROM movies WHERE movie_id = :movieId")
     LiveData<MovieEntity> getMovieById(int movieId);

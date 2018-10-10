@@ -14,8 +14,10 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProviders;
+import com.techbeloved.moviesbeloved.Injection;
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.R;
+import com.techbeloved.moviesbeloved.common.viewmodel.Response;
 import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.databinding.FragmentMoviesBinding;
@@ -57,6 +59,8 @@ public class MoviesFragment extends Fragment {
     private static final String CURRENT_PAGE = "CURRENT_PAGE";
 
     private MoviesViewModel mViewModel;
+
+    MoviesViewModelFactory mViewModelFactory;
 
     public MoviesFragment() {
         // Required empty public constructor
@@ -121,7 +125,8 @@ public class MoviesFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         Timber.i("onActivityCreated is called");
 
-        mViewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
+        mViewModelFactory = Injection.provideMoviesViewModelFactory(getActivity().getApplicationContext());
+        mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(MoviesViewModel.class);
         subscribeUi(mViewModel);
 
         // restore state if any saved property
@@ -134,7 +139,22 @@ public class MoviesFragment extends Fragment {
     }
 
     private void subscribeUi(MoviesViewModel viewModel) {
-        viewModel.getMovies().observe(this, this::showMovies);
+        viewModel.loadFavoriteMovies();
+        viewModel.response().observe(this, this::processResponse);
+    }
+
+    private void processResponse(Response<List<MovieEntity>> listResponse) {
+        switch (listResponse.status) {
+            case LOADING:
+                setLoadingIndicator(true);
+                break;
+            case SUCCESS:
+                showMovies(listResponse.data);
+                break;
+            case ERROR:
+                showLoadingMoviesError();
+                break;
+        }
     }
 
     private FragmentMoviesBinding mBinding;
