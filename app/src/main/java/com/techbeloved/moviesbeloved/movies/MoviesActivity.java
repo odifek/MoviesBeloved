@@ -36,22 +36,17 @@ public class MoviesActivity extends AppCompatActivity {
                     getSupportFragmentManager(), moviesFragment, R.id.contentFrame
             );
         }
-        // Create the presenter
-        mMoviesPresenter = new MoviesPresenter(
-                Injection.provideMoviesRepository(getApplicationContext()),
-                moviesFragment
-        );
 
         // Load previously saved state, if available
-        if (savedInstanceState != null) {
-            MovieFilterType currentFiltering = (MovieFilterType) savedInstanceState.getSerializable(CURRENT_FILTERING_KEY);
-            mMoviesPresenter.setFiltering(currentFiltering);
-        }
+//        if (savedInstanceState != null) {
+//            MovieFilterType currentFiltering = (MovieFilterType) savedInstanceState.getSerializable(CURRENT_FILTERING_KEY);
+//            mMoviesPresenter.setFiltering(currentFiltering);
+//        }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable(CURRENT_FILTERING_KEY, mMoviesPresenter.getFiltering());
+//        outState.putSerializable(CURRENT_FILTERING_KEY, mMoviesPresenter.getFiltering());
         super.onSaveInstanceState(outState);
     }
 }

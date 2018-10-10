@@ -1,5 +1,6 @@
 package com.techbeloved.moviesbeloved.data.source.local;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.*;
 import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
 
@@ -9,10 +10,10 @@ import java.util.List;
 public interface ReviewsDao {
 
     @Query("SELECT * FROM reviews WHERE movie_id = :movieId")
-    List<ReviewEntity> getReviews(int movieId);
+    LiveData<List<ReviewEntity>> getReviews(int movieId);
 
     @Query("SELECT * FROM reviews WHERE review_id = :reviewId")
-    ReviewEntity getReview(String reviewId);
+    LiveData<ReviewEntity> getReview(String reviewId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertReview(ReviewEntity review);

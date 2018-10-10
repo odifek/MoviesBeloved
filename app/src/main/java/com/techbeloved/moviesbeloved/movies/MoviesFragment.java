@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProviders;
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Movie;
@@ -39,12 +40,12 @@ import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_ID_EXTRA;
  * Use the {@link MoviesFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MoviesFragment extends Fragment implements MoviesContract.View {
+public class MoviesFragment extends Fragment {
 
     private static final String TAG = MoviesFragment.class.getSimpleName();
 
     private static final String CURRENT_FILTERING = "CURRENT_FILTERING";
-    private MoviesContract.Presenter mPresenter;
+    //    private MoviesContract.Presenter mPresenter;
     private static MovieFilterType mCurrentFilter;
 
     private MovieAdapter mAdapter;
@@ -55,6 +56,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     private int mCurrentPage;
     private static final String CURRENT_PAGE = "CURRENT_PAGE";
 
+    private MoviesViewModel mViewModel;
 
     public MoviesFragment() {
         // Required empty public constructor
@@ -86,7 +88,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
         super.onCreate(savedInstanceState);
         mAdapter = new MovieAdapter(movie -> {
             // COMPLETED: 9/21/18 implement onclick
-            mPresenter.openMovieDetails(movie.getId());
+//            mPresenter.openMovieDetails(movie.getId());
         });
         mLayoutManager = new GridLayoutManager(getContext(), getContext().getResources().getInteger(R.integer.movie_grid_span_count));
         mOnScrollListener = new EndlessScrollListener(mLayoutManager) {
@@ -94,7 +96,7 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 Timber.i("Loading page: %s", (page + 1));
                 mCurrentPage = page + 1;
-                mPresenter.loadMoreMovies(page + 1); // The first page is actually 1 not 0, so increment to match the api
+//                mPresenter.loadMoreMovies(page + 1); // The first page is actually 1 not 0, so increment to match the api
             }
         };
     }
@@ -104,25 +106,24 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
         super.onResume();
         Timber.i("onResume is called");
         // We can update the filtering from saved state
-        mPresenter.setFiltering(mCurrentFilter);
-        mPresenter.start();
-    }
-
-    @Override
-    public void setPresenter(MoviesContract.Presenter presenter) {
-        mPresenter = presenter;
+//        mPresenter.setFiltering(mCurrentFilter);
+//        mPresenter.start();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        mPresenter.result(requestCode, resultCode);
+//        mPresenter.result(requestCode, resultCode);
+
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Timber.i("onActivityCreated is called");
-        if (mPresenter != null) mPresenter.setShouldReload(true);
+
+        mViewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
+        subscribeUi(mViewModel);
+
         // restore state if any saved property
         if (savedInstanceState != null) {
             Timber.i("Any saved instance?");
@@ -130,6 +131,10 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
         } else if (mCurrentFilter == null) {
             mCurrentFilter = MovieFilterType.POPULAR; // Default filter type
         }
+    }
+
+    private void subscribeUi(MoviesViewModel viewModel) {
+        viewModel.getMovies().observe(this, this::showMovies);
     }
 
     private FragmentMoviesBinding mBinding;
@@ -148,8 +153,8 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         Timber.i("onSavedInstanceState is called");
-        outState.putInt(CURRENT_PAGE, mCurrentPage);
-        outState.putSerializable(CURRENT_FILTERING, mPresenter.getFiltering());
+//        outState.putInt(CURRENT_PAGE, mCurrentPage);
+//        outState.putSerializable(CURRENT_FILTERING, mPresenter.getFiltering());
         super.onSaveInstanceState(outState);
     }
 
@@ -157,11 +162,11 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     public void onPause() {
         super.onPause();
         // Because we only want favorite to reload perhaps new stuff has been added
-        if (mPresenter.getFiltering() != MovieFilterType.FAVORITES) {
-            mPresenter.setShouldReload(false);
-        } else {
-            mPresenter.setShouldReload(true);
-        }
+//        if (mPresenter.getFiltering() != MovieFilterType.FAVORITES) {
+//            mPresenter.setShouldReload(false);
+//        } else {
+//            mPresenter.setShouldReload(true);
+//        }
     }
 
     @Override
@@ -169,46 +174,48 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
         inflater.inflate(R.menu.movies_fragment_menu, menu);
         // Initialise menu items
         Timber.i("onCreateOptionsMenu is called");
-        switch (mPresenter.getFiltering()) {
-            case TOP_RATED:
-                menu.findItem(R.id.top_rated_filter_menu).setChecked(true);
-                break;
-            case POPULAR:
-                menu.findItem(R.id.popularity_filter_menu).setChecked(true);
-                break;
-            case FAVORITES:
-                menu.findItem(R.id.favorites_filter_menu).setChecked(true);
-                break;
-        }
+        // FIXME: 10/9/18 We are only testing with favorites for now
+        menu.findItem(R.id.favorites_filter_menu).setChecked(true);
+////        switch (mPresenter.getFiltering()) {
+////            case TOP_RATED:
+////                menu.findItem(R.id.top_rated_filter_menu).setChecked(true);
+////                break;
+////            case POPULAR:
+////                menu.findItem(R.id.popularity_filter_menu).setChecked(true);
+////                break;
+////            case FAVORITES:
+////                menu.findItem(R.id.favorites_filter_menu).setChecked(true);
+////                break;
+//        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.top_rated_filter_menu:
-                mCurrentFilter = MovieFilterType.TOP_RATED;
-                mPresenter.setFiltering(mCurrentFilter);
-                if (!item.isChecked()) {
-                    // Only reload if the item is not the currently selected filter
-                    reloadMovies();
-                }
-                break;
-            case R.id.popularity_filter_menu:
-                mCurrentFilter = MovieFilterType.POPULAR;
-                mPresenter.setFiltering(mCurrentFilter);
-                if (!item.isChecked()) {
-                    reloadMovies();
-                }
-                break;
-            case R.id.favorites_filter_menu:
-                mCurrentFilter = MovieFilterType.FAVORITES;
-                mPresenter.setFiltering(mCurrentFilter);
-                if (!item.isChecked()) {
-                    Timber.i("Should reload");
-                    reloadMovies();
-                }
-                break;
-        }
+//        switch (item.getItemId()){
+//            case R.id.top_rated_filter_menu:
+//                mCurrentFilter = MovieFilterType.TOP_RATED;
+//                mPresenter.setFiltering(mCurrentFilter);
+//                if (!item.isChecked()) {
+//                    // Only reload if the item is not the currently selected filter
+//                    reloadMovies();
+//                }
+//                break;
+//            case R.id.popularity_filter_menu:
+//                mCurrentFilter = MovieFilterType.POPULAR;
+//                mPresenter.setFiltering(mCurrentFilter);
+//                if (!item.isChecked()) {
+//                    reloadMovies();
+//                }
+//                break;
+//            case R.id.favorites_filter_menu:
+//                mCurrentFilter = MovieFilterType.FAVORITES;
+//                mPresenter.setFiltering(mCurrentFilter);
+//                if (!item.isChecked()) {
+//                    Timber.i("Should reload");
+//                    reloadMovies();
+//                }
+//                break;
+//        }
         // Finally check the item
         item.setChecked(true);
         return super.onOptionsItemSelected(item);
@@ -220,42 +227,41 @@ public class MoviesFragment extends Fragment implements MoviesContract.View {
     private void reloadMovies() {
         mAdapter.clear();
         ((EndlessScrollListener) mOnScrollListener).resetState();
-        mPresenter.loadMovies(true);
+//        mPresenter.loadMovies(true);
     }
 
-    @Override
     public void setLoadingIndicator(boolean active) {
         mBinding.setIsLoading(active);
     }
 
-    @Override
     public void showMovies(List<MovieEntity> movies) {
+        setLoadingIndicator(false);
         mAdapter.clear();
         mAdapter.setMovieList(movies);
     }
 
-    @Override
+
     public void showMoreMovies(List<MovieEntity> movies) {
         mAdapter.setMovieList(movies);
     }
 
-    @Override
+
     public void showLoadingMoviesError() {
 
     }
 
-    @Override
+
     public void showNoMovies() {
         mBinding.setIsEmpty(true);
     }
 
-    @Override
+
     public boolean isActive() {
         // Fragment is currently active
         return isAdded();
     }
 
-    @Override
+
     public void showMovieDetails(int requestedMovieId) {
         // COMPLETED: 9/21/18 create intent and launch the MovieDetail activity
         Intent intent = new Intent(getActivity(), MovieDetailActivity.class);

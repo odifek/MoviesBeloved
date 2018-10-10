@@ -1,5 +1,6 @@
 package com.techbeloved.moviesbeloved.data.source.local;
 
+import androidx.lifecycle.LiveData;
 import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 
@@ -15,10 +16,10 @@ import androidx.room.Update;
 public interface MoviesDao {
 
     @Query("SELECT * FROM movies")
-    List<MovieEntity> getMovies();
+    LiveData<List<MovieEntity>> getMovies();
 
     @Query("SELECT * FROM movies WHERE movie_id = :movieId")
-    MovieEntity getMovieById(int movieId);
+    LiveData<MovieEntity> getMovieById(int movieId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMovie(MovieEntity movie);

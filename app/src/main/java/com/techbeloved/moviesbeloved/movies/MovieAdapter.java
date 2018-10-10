@@ -27,12 +27,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
     public void setMovieList(final List<MovieEntity> movieList) {
-        if (mMovieList == null) {
-            mMovieList = movieList;
-            notifyItemRangeInserted(0, movieList.size());
-        } else {
-            mMovieList.addAll(movieList);
-            notifyItemRangeInserted(mMovieList.size(), movieList.size());
+        if (movieList != null) {
+            if (mMovieList == null) {
+                mMovieList = movieList;
+                notifyItemRangeInserted(0, movieList.size());
+            } else {
+                mMovieList.addAll(movieList);
+                notifyItemRangeInserted(mMovieList.size(), movieList.size());
+            }
         }
     }
 

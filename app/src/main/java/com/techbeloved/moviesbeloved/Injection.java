@@ -15,17 +15,17 @@ import androidx.annotation.NonNull;
 import static com.bumptech.glide.util.Preconditions.checkNotNull;
 
 public class Injection {
-    public static MoviesRepository provideMoviesRepository(@NonNull Context context) {
-        checkNotNull(context);
-
-        FavoriteDatabase database = FavoriteDatabase.getInstance(context);
-
-        TMDBMovies mDBMovies = TMDBMovies.getInstance(MoviesRequestQueue.getInstance(context));
-        return MoviesRepository.getInstance(MoviesRemoteDataSource.getInstance(mDBMovies),
-                                              MoviesLocalDataSource.getInstance(new AppExecutors(),
-                                                      database.moviesDao(),
-                                                      database.reviewsDao(),
-                                                      database.videosDao()));
-
-    }
+//    public static MoviesRepository provideMoviesRepository(@NonNull Context context) {
+//        checkNotNull(context);
+//
+//        FavoriteDatabase database = FavoriteDatabase.getInstance(context);
+//
+//        TMDBMovies mDBMovies = TMDBMovies.getInstance(MoviesRequestQueue.getInstance(context));
+//        return MoviesRepository.getInstance(MoviesRemoteDataSource.getInstance(mDBMovies),
+//                                              MoviesLocalDataSource.getInstance(new AppExecutors(),
+//                                                      database.moviesDao(),
+//                                                      database.reviewsDao(),
+//                                                      database.videosDao()));
+//
+//    }
 }
