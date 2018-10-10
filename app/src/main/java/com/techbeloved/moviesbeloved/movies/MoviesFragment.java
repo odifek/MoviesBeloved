@@ -141,15 +141,18 @@ public class MoviesFragment extends Fragment {
     private void subscribeUi(MoviesViewModel viewModel) {
         viewModel.loadFavoriteMovies();
         viewModel.response().observe(this, this::processResponse);
+//        viewModel.getMovies().observe(this, this::processResponse);
     }
 
     private void processResponse(Response<List<MovieEntity>> listResponse) {
+        Timber.i("Called to process response");
         switch (listResponse.status) {
             case LOADING:
                 setLoadingIndicator(true);
                 break;
             case SUCCESS:
                 showMovies(listResponse.data);
+                Timber.i("Got some data");
                 break;
             case ERROR:
                 showLoadingMoviesError();

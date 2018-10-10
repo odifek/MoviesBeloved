@@ -4,7 +4,6 @@ import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.data.source.MoviesRepository;
 import io.reactivex.Flowable;
-import io.reactivex.Single;
 
 import java.util.List;
 
