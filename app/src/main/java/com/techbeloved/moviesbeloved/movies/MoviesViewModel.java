@@ -9,6 +9,7 @@ import com.techbeloved.moviesbeloved.rx.SchedulersFacade;
 import io.reactivex.disposables.CompositeDisposable;
 import timber.log.Timber;
 
+import javax.inject.Inject;
 import java.util.List;
 
 public class MoviesViewModel extends ViewModel {
@@ -25,6 +26,7 @@ public class MoviesViewModel extends ViewModel {
 //    private final MediatorLiveData<Response<List<MovieEntity>>> mObservableMovies;
 
 
+    @Inject
     public MoviesViewModel(LoadFavoriteMoviesUseCase favoriteMoviesUseCase, SchedulersFacade schedulersFacade) {
         this.loadFavoriteMoviesUseCase = favoriteMoviesUseCase;
         this.schedulersFacade = schedulersFacade;

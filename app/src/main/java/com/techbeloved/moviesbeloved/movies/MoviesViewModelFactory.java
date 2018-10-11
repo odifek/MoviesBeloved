@@ -6,12 +6,17 @@ import androidx.lifecycle.ViewModelProvider;
 import com.techbeloved.moviesbeloved.common.domain.LoadFavoriteMoviesUseCase;
 import com.techbeloved.moviesbeloved.rx.SchedulersFacade;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class MoviesViewModelFactory implements ViewModelProvider.Factory {
 
     private final LoadFavoriteMoviesUseCase loadFavoriteMoviesUseCase;
 
     private final SchedulersFacade schedulersFacade;
 
+    @Inject
     public MoviesViewModelFactory(LoadFavoriteMoviesUseCase loadFavoriteMoviesUseCase, SchedulersFacade schedulersFacade) {
         this.loadFavoriteMoviesUseCase = loadFavoriteMoviesUseCase;
         this.schedulersFacade = schedulersFacade;

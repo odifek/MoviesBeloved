@@ -2,36 +2,27 @@ package com.techbeloved.moviesbeloved.movies;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
+import android.view.*;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
-import com.techbeloved.moviesbeloved.Injection;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.common.viewmodel.Response;
-import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.databinding.FragmentMoviesBinding;
+import com.techbeloved.moviesbeloved.di.ActivityScope;
 import com.techbeloved.moviesbeloved.moviedetails.MovieDetailActivity;
 import com.techbeloved.moviesbeloved.utils.EndlessScrollListener;
-
-import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.core.widget.ContentLoadingProgressBar;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import dagger.android.support.DaggerFragment;
 import timber.log.Timber;
+
+import javax.inject.Inject;
+import java.util.List;
 
 import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_ID_EXTRA;
 
@@ -42,6 +33,7 @@ import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_ID_EXTRA;
  * Use the {@link MoviesFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
+@ActivityScope
 public class MoviesFragment extends Fragment {
 
     private static final String TAG = MoviesFragment.class.getSimpleName();
@@ -60,8 +52,10 @@ public class MoviesFragment extends Fragment {
 
     private MoviesViewModel mViewModel;
 
-    MoviesViewModelFactory mViewModelFactory;
+    @Inject
+    public MoviesViewModelFactory mViewModelFactory;
 
+    @Inject
     public MoviesFragment() {
         // Required empty public constructor
     }
@@ -125,7 +119,6 @@ public class MoviesFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         Timber.i("onActivityCreated is called");
 
-        mViewModelFactory = Injection.provideMoviesViewModelFactory(getActivity().getApplicationContext());
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(MoviesViewModel.class);
         subscribeUi(mViewModel);
 

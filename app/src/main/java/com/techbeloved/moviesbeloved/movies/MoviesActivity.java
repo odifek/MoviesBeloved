@@ -1,23 +1,18 @@
 package com.techbeloved.moviesbeloved.movies;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-
 import androidx.appcompat.widget.Toolbar;
-
-import com.techbeloved.moviesbeloved.Injection;
-import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.utils.ActivityUtils;
+import dagger.Lazy;
+import dagger.android.support.DaggerAppCompatActivity;
 
-public class MoviesActivity extends AppCompatActivity {
+import javax.inject.Inject;
 
-    private static final String CURRENT_FILTERING_KEY = "CURRENT_FILTERING_KEY";
+public class MoviesActivity extends DaggerAppCompatActivity {
 
-    private MoviesPresenter mMoviesPresenter;
+    @Inject
+    Lazy<MoviesFragment> moviesFragmentProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +26,7 @@ public class MoviesActivity extends AppCompatActivity {
                 (MoviesFragment) getSupportFragmentManager().findFragmentById(R.id.contentFrame);
         if (moviesFragment == null) {
             // Create the fragment
-            moviesFragment = MoviesFragment.newInstance();
+            moviesFragment = moviesFragmentProvider.get();
             ActivityUtils.addFragmentToActivity(
                     getSupportFragmentManager(), moviesFragment, R.id.contentFrame
             );

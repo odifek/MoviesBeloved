@@ -21,17 +21,4 @@ public abstract class FavoriteDatabase extends RoomDatabase {
     public abstract ReviewsDao reviewsDao();
 
     public abstract VideosDao videosDao();
-
-    public static FavoriteDatabase getInstance(Context context) {
-        if (INSTANCE == null)
-        synchronized (FavoriteDatabase.class) {
-            if (INSTANCE == null) {
-                INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                        FavoriteDatabase.class, "Movies.db")
-                        .fallbackToDestructiveMigration()
-                        .build();
-            }
-        }
-        return INSTANCE;
-    }
 }

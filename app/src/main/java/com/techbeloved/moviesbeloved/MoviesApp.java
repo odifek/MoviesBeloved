@@ -1,31 +1,31 @@
 package com.techbeloved.moviesbeloved;
 
-import android.app.Application;
-
+import androidx.annotation.VisibleForTesting;
 import com.techbeloved.moviesbeloved.data.source.MoviesRepository;
-import com.techbeloved.moviesbeloved.data.source.local.FavoriteDatabase;
-import com.techbeloved.moviesbeloved.data.source.local.MoviesLocalDataSource;
-import com.techbeloved.moviesbeloved.utils.AppExecutors;
+import com.techbeloved.moviesbeloved.di.DaggerAppComponent;
+import dagger.android.AndroidInjector;
+import dagger.android.support.DaggerApplication;
 import timber.log.Timber;
 
-public class MoviesApp extends Application {
+import javax.inject.Inject;
 
-    private AppExecutors mAppExecutors;
-
+public class MoviesApp extends DaggerApplication {
+    @Inject
+    MoviesRepository moviesRepository;
     @Override
     public void onCreate() {
         super.onCreate();
-        mAppExecutors = new AppExecutors();
+
         Timber.plant(new Timber.DebugTree());
     }
 
-    public FavoriteDatabase getDatabase() {
-        return FavoriteDatabase.getInstance(this);
+    @Override
+    protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
+        return DaggerAppComponent.builder().application(this).build();
     }
 
-    public MoviesRepository getRepository() {
-        return MoviesRepository.getInstance(
-                MoviesLocalDataSource.getInstance(
-                        getDatabase()));
+    @VisibleForTesting
+    public MoviesRepository getMoviesRepository() {
+        return moviesRepository;
     }
 }

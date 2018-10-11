@@ -13,9 +13,13 @@ import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
 import com.techbeloved.moviesbeloved.data.models.VideoEntity;
 import io.reactivex.Flowable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * Concrete implementation to load movies from the data sources into a cache
  */
+@Singleton
 public class MoviesRepository implements MoviesDataSource {
 
     private static MoviesRepository INSTANCE = null;
@@ -29,19 +33,13 @@ public class MoviesRepository implements MoviesDataSource {
     boolean mCacheIsDirty = false;
 
     // prevent direct instantiation
-    private MoviesRepository(//@NonNull MoviesDataSource moviesRemoteDataSource,
-                             @NonNull MoviesDataSource moviesLocalDataSource) {
+    @Inject
+    public MoviesRepository(//@NonNull MoviesDataSource moviesRemoteDataSource,
+                            @NonNull @Local MoviesDataSource moviesLocalDataSource) {
 //        mMoviesRemoteDataSource = moviesRemoteDataSource;
         mMoviesLocalDataSource = moviesLocalDataSource;
     }
 
-    public static MoviesRepository getInstance(//MoviesDataSource moviesRemoteDataSource,
-                                               MoviesDataSource moviesLocalDataSource) {
-        if (INSTANCE == null) {
-            INSTANCE = new MoviesRepository(/*moviesRemoteDataSource, */moviesLocalDataSource);
-        }
-        return INSTANCE;
-    }
 
     public static void destroyInstance() {
         INSTANCE = null;

@@ -11,6 +11,8 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 
+import javax.inject.Singleton;
+
 
 public class MoviesRemoteDataSource {
 

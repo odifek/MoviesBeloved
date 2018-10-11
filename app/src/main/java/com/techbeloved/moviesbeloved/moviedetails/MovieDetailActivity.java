@@ -28,7 +28,6 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.techbeloved.moviesbeloved.Injection;
 import com.techbeloved.moviesbeloved.R;
 
 import java.util.List;
