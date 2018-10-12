@@ -38,17 +38,9 @@ public class MoviesFragment extends Fragment {
 
     private static final String TAG = MoviesFragment.class.getSimpleName();
 
-    private static final String CURRENT_FILTERING = "CURRENT_FILTERING";
-    //    private MoviesContract.Presenter mPresenter;
-    private static MovieFilterType mCurrentFilter;
-
     private MovieAdapter mAdapter;
     RecyclerView.OnScrollListener mOnScrollListener;
     private GridLayoutManager mLayoutManager;
-
-    // Current page of movies list
-    private int mCurrentPage;
-    private static final String CURRENT_PAGE = "CURRENT_PAGE";
 
     private MoviesViewModel mViewModel;
 
@@ -105,15 +97,6 @@ public class MoviesFragment extends Fragment {
 
     private void setNextPageToLoad(int page) {
         mViewModel.setNextPage(page);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Timber.i("onResume is called");
-        // We can update the filtering from saved state
-//        mPresenter.setFiltering(mCurrentFilter);
-//        mPresenter.start();
     }
 
     @Override
@@ -240,9 +223,7 @@ public class MoviesFragment extends Fragment {
 
     public void showMovies(List<MovieEntity> movies) {
         setLoadingIndicator(false);
-        Timber.i("How many movies did I receive? %s", movies.size());
-//        mAdapter.clear();
-        mAdapter.setMovieList(movies);
+        mAdapter.updateItems(movies);
     }
 
     public void showLoadingMoviesError() {

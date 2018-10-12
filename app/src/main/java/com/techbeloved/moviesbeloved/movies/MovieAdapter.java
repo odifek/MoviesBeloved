@@ -1,5 +1,6 @@
 package com.techbeloved.moviesbeloved.movies;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
@@ -11,44 +12,43 @@ import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.databinding.MovieItemBinding;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
-    private List<MovieEntity> mMovieList;
+    protected List<MovieEntity> mMovieList = new ArrayList<>();
     private final MovieClickCallback mMovieClickCallback;
 
     public MovieAdapter(MovieClickCallback clickCallback) {
         this.mMovieClickCallback = clickCallback;
     }
 
-    public void setMovieList(final List<MovieEntity> movieList) {
-        if (movieList != null) {
-            if (mMovieList == null) {
-                mMovieList = movieList;
-                notifyDataSetChanged();
-            } else {
-                updateMovieList(movieList);
-            }
-        }
+
+    public void updateItems(final List<MovieEntity> newMovies) {
+        updateItemsInternal(newMovies);
     }
 
-    // FIXED: 10/12/18 This is not working yet
+    public void updateItemsInternal(final List<MovieEntity> newMovies) {
+        final List<MovieEntity> oldItems = new ArrayList<>(this.mMovieList);
 
-    private void updateMovieList(List<MovieEntity> movieList) {
-        final MovieDiffCallback diffCallback = new MovieDiffCallback(mMovieList, movieList);
+        final MovieDiffCallback diffCallback = new MovieDiffCallback(oldItems, newMovies);
 
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
-        this.mMovieList = movieList;
-        diffResult.dispatchUpdatesTo(MovieAdapter.this);
+        final Handler handler = new Handler();
+        new Thread(() -> {
+            final DiffUtil.DiffResult diffResult =
+                    DiffUtil.calculateDiff(diffCallback);
+            handler.post(() -> applyDiffResult(newMovies, diffResult));
+        }).start();
+    }
 
-//        Observable.fromCallable(() -> DiffUtil.calculateDiff(diffCallback))
-//                .subscribeOn(Schedulers.computation())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(diffResult -> {
-//                    mMovieList = movieList;
-//                    diffResult.dispatchUpdatesTo(MovieAdapter.this);
-//                });
+    private void applyDiffResult(List<MovieEntity> newMovies, DiffUtil.DiffResult diffResult) {
+        dispatchUpdates(newMovies, diffResult);
+    }
 
+    private void dispatchUpdates(List<MovieEntity> newMovies, DiffUtil.DiffResult diffResult) {
+        diffResult.dispatchUpdatesTo(this);
+        mMovieList.clear();
+        mMovieList.addAll(newMovies);
     }
 
     @NonNull
