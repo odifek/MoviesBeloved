@@ -1,161 +1,105 @@
 package com.techbeloved.moviesbeloved.data.source.remote;
 
+import android.net.Uri;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import com.techbeloved.moviesbeloved.MovieFilterType;
-import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
 import com.techbeloved.moviesbeloved.data.models.VideoEntity;
 import com.techbeloved.moviesbeloved.data.source.MoviesDataSource;
+import com.techbeloved.moviesbeloved.data.source.remote.api.MoviesWrapper;
+import com.techbeloved.moviesbeloved.data.source.remote.api.TMDBMovieService;
+import com.techbeloved.moviesbeloved.utils.Constants;
+import io.reactivex.Flowable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.List;
 
-import androidx.annotation.NonNull;
+@Singleton
+public class MoviesRemoteDataSource implements MoviesDataSource {
 
-import javax.inject.Singleton;
+    private TMDBMovieService movieService;
 
+    @Inject
+    public MoviesRemoteDataSource(@NonNull TMDBMovieService movieService) {
+        this.movieService = movieService;
+    }
 
-public class MoviesRemoteDataSource {
+    @Override
+    public Flowable<List<MovieEntity>> getMovies(MovieFilterType filterType, int page) {
+        switch (filterType) {
+            case POPULAR:
+                return movieService.getPopularMovies(page)
+                        .map(MoviesWrapper::getMovieList)
+                        .map(movieEntities -> {
+                            for (int i = 0; i < movieEntities.size(); i++) {
+                                // Modify the object in place
+                                movieEntities.set(i, addPosterUrl(movieEntities.get(i)));
+                            }
+                            return movieEntities;
+                        });
+        }
+        return null;
+    }
 
-//    private static MoviesRemoteDataSource INSTANCE;
-//
-//    private MovieRemoteDao mMovieRemoteDao;
-//
-//    public static MoviesRemoteDataSource getInstance(MovieRemoteDao movieRemoteDao) {
-//        if (INSTANCE == null) {
-//            INSTANCE = new MoviesRemoteDataSource(movieRemoteDao);
-//        }
-//        return INSTANCE;
-//    }
-//
-//    // Prevent instantiation
-//    private MoviesRemoteDataSource(MovieRemoteDao movieRemoteDao) {
-//        mMovieRemoteDao = movieRemoteDao;
-//    }
-//
-//    @Override
-//    public void getMovies(MovieFilterType filterType, @NonNull final LoadMoviesCallback callback) {
-//        // The first page is requested
-//        int page = 1;
-//        mMovieRemoteDao.getMovies(filterType, page, new LoadMoviesCallback() {
-//            @Override
-//            public void onMoviesLoaded(List<MovieEntity> movies) {
-//                callback.onMoviesLoaded(movies);
-//            }
-//
-//            @Override
-//            public void onDataNotAvailable() {
-//                callback.onDataNotAvailable();
-//            }
-//        });
-//    }
-//
-//    @Override
-//    public void getMovies(MovieFilterType filterType, int page, @NonNull final LoadMoviesCallback callback) {
-//        mMovieRemoteDao.getMovies(filterType, page, new LoadMoviesCallback() {
-//            @Override
-//            public void onMoviesLoaded(List<MovieEntity> movies) {
-//                callback.onMoviesLoaded(movies);
-//            }
-//
-//            @Override
-//            public void onDataNotAvailable() {
-//                callback.onDataNotAvailable();
-//            }
-//        });
-//    }
-//
-//    @Override
-//    public void getMovie(int movieId, @NonNull final GetMovieCallback callback) {
-//        mMovieRemoteDao.getMovie(movieId, new GetMovieCallback() {
-//            @Override
-//            public void onMovieLoaded(MovieEntity movie) {
-//                callback.onMovieLoaded(movie);
-//            }
-//
-//            @Override
-//            public void onDataNotAvailable() {
-//                callback.onDataNotAvailable();
-//            }
-//        });
-//    }
-//
-//    @Override
-//    public void saveMovie(@NonNull MovieEntity movie) {
-//        // Not used in remote server
-//    }
-//
-//    @Override
-//    public void deleteAllMovies() {
-//        // Not applicable
-//    }
-//
-//    @Override
-//    public void deleteMovie(int movieId) {
-//        // Not applicable
-//    }
-//
-//    @Override
-//    public void getReviews(int movieId, @NonNull final LoadReviewsCallback callback) {
-//        mMovieRemoteDao.getReviews(movieId, 1, new LoadReviewsCallback() {
-//            @Override
-//            public void onReviewsLoaded(List<ReviewEntity> reviews) {
-//                callback.onReviewsLoaded(reviews);
-//            }
-//
-//            @Override
-//            public void onDataNotAvailable() {
-//                callback.onDataNotAvailable();
-//            }
-//        });
-//    }
-//
-//    @Override
-//    public void getReviews(int movieId, int page, @NonNull final LoadReviewsCallback callback) {
-//        mMovieRemoteDao.getReviews(movieId, page, new LoadReviewsCallback() {
-//            @Override
-//            public void onReviewsLoaded(List<ReviewEntity> reviews) {
-//                callback.onReviewsLoaded(reviews);
-//            }
-//
-//            @Override
-//            public void onDataNotAvailable() {
-//                callback.onDataNotAvailable();
-//            }
-//        });
-//    }
-//
-//    @Override
-//    public void saveReview(@NonNull ReviewEntity review) {
-//        // Not yet implemented
-//    }
-//
-//    @Override
-//    public void deleteReviews(int movieId) {
-//        // Not applicable
-//    }
-//
-//    @Override
-//    public void getVideos(int movieId, @NonNull final LoadVideosCallback callback) {
-//        mMovieRemoteDao.getVideos(movieId, new LoadVideosCallback() {
-//            @Override
-//            public void onVideosLoaded(List<VideoEntity> videos) {
-//                callback.onVideosLoaded(videos);
-//            }
-//
-//            @Override
-//            public void onDataNotAvailable() {
-//                callback.onDataNotAvailable();
-//            }
-//        });
-//    }
-//
-//    @Override
-//    public void saveVideo(@NonNull VideoEntity video) {
-//        // Not applicable
-//    }
-//
-//    @Override
-//    public void deleteVideos(int movieId) {
-//        // Not applicable
-//    }
+    private MovieEntity addPosterUrl(MovieEntity movieEntity) {
+        String baseImageUrl = Constants.TMDB_IMAGE_BASE_URL;
+        Uri.Builder builder = Uri.parse(baseImageUrl).buildUpon();
+        builder.appendEncodedPath(Constants.DEFAULT_POSTER_SIZE);
+        builder.appendEncodedPath(movieEntity.getPosterPath());
+        movieEntity.setPosterUrl(builder.toString());
+        return movieEntity;
+    }
+
+    @Override
+    public LiveData<MovieEntity> getMovie(int movieId) {
+        return null;
+    }
+
+    @Override
+    public LiveData<List<ReviewEntity>> getReviews(int movieId) {
+        return null;
+    }
+
+    @Override
+    public LiveData<List<VideoEntity>> getVideos(int movieId) {
+        return null;
+    }
+
+    @Override
+    public void saveMovie(@NonNull MovieEntity movie) {
+
+    }
+
+    @Override
+    public void deleteAllMovies() {
+
+    }
+
+    @Override
+    public void deleteMovie(int movieId) {
+
+    }
+
+    @Override
+    public void saveReview(@NonNull ReviewEntity review) {
+
+    }
+
+    @Override
+    public void deleteReviews(int movieId) {
+
+    }
+
+    @Override
+    public void saveVideo(@NonNull VideoEntity video) {
+
+    }
+
+    @Override
+    public void deleteVideos(int movieId) {
+
+    }
 }

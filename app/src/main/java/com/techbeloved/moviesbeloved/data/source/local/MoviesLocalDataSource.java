@@ -1,21 +1,17 @@
 package com.techbeloved.moviesbeloved.data.source.local;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
 import com.techbeloved.moviesbeloved.data.models.VideoEntity;
 import com.techbeloved.moviesbeloved.data.source.MoviesDataSource;
-
-import java.util.List;
-
-import androidx.annotation.NonNull;
 import io.reactivex.Flowable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import static com.bumptech.glide.util.Preconditions.checkNotNull;
+import java.util.List;
 
 /**
  * Concrete implementation of a data source as a db.
@@ -32,7 +28,7 @@ public class MoviesLocalDataSource implements MoviesDataSource {
     }
 
     @Override
-    public Flowable<List<MovieEntity>> getMovies(MovieFilterType filterType) {
+    public Flowable<List<MovieEntity>> getMovies(MovieFilterType filterType, int page) {
         return mDatabase.moviesDao().getMovies();
     }
 

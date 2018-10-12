@@ -5,7 +5,7 @@ import com.techbeloved.moviesbeloved.BuildConfig;
 public class Constants {
     public static final String MOVIE_ID_EXTRA = "movie_id";
     public static final String TMDB_IMAGE_BASE_URL = "http://image.tmdb.org/t/p/";
-    public static final String TMDB_API_BASE_URL = "https://api.themoviedb.org/3/";
+    public static final String TMDB_API_BASE_URL = "https://api.themoviedb.org/";
     public static final String DEFAULT_POSTER_SIZE = "w185";
     public static final String DEFAULT_BACKDROP_SIZE = "w780";
     public static final String TMDB_API_KEY = BuildConfig.TmdbApiKey;

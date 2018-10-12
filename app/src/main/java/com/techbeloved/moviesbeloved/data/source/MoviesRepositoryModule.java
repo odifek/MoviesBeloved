@@ -3,6 +3,7 @@ package com.techbeloved.moviesbeloved.data.source;
 import android.app.Application;
 import androidx.room.Room;
 import com.techbeloved.moviesbeloved.data.source.local.*;
+import com.techbeloved.moviesbeloved.data.source.remote.MoviesRemoteDataSource;
 import com.techbeloved.moviesbeloved.utils.AppExecutors;
 import com.techbeloved.moviesbeloved.utils.DiskIOThreadExecutor;
 import dagger.Binds;
@@ -22,10 +23,10 @@ public abstract class MoviesRepositoryModule {
     @Local
     abstract MoviesDataSource provideMoviesLocalDataSource(MoviesLocalDataSource dataSource);
 
-//    @Singleton
-//    @Binds
-//    @Remote
-//    abstract MoviesDataSource provideMoviesRemoteDataSource(MoviesRemoteDataSource dataSource);
+    @Singleton
+    @Binds
+    @Remote
+    abstract MoviesDataSource provideMoviesRemoteDataSource(MoviesRemoteDataSource dataSource);
 
     @Singleton
     @Provides

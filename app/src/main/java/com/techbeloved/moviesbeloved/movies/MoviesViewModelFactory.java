@@ -3,7 +3,7 @@ package com.techbeloved.moviesbeloved.movies;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import com.techbeloved.moviesbeloved.common.domain.LoadFavoriteMoviesUseCase;
+import com.techbeloved.moviesbeloved.data.source.MoviesRepository;
 import com.techbeloved.moviesbeloved.rx.SchedulersFacade;
 
 import javax.inject.Inject;
@@ -12,13 +12,14 @@ import javax.inject.Singleton;
 @Singleton
 public class MoviesViewModelFactory implements ViewModelProvider.Factory {
 
-    private final LoadFavoriteMoviesUseCase loadFavoriteMoviesUseCase;
+    private final MoviesRepository moviesRepository;
 
     private final SchedulersFacade schedulersFacade;
 
     @Inject
-    public MoviesViewModelFactory(LoadFavoriteMoviesUseCase loadFavoriteMoviesUseCase, SchedulersFacade schedulersFacade) {
-        this.loadFavoriteMoviesUseCase = loadFavoriteMoviesUseCase;
+    public MoviesViewModelFactory(MoviesRepository moviesRepository,
+                                  SchedulersFacade schedulersFacade) {
+        this.moviesRepository = moviesRepository;
         this.schedulersFacade = schedulersFacade;
     }
 
@@ -26,7 +27,7 @@ public class MoviesViewModelFactory implements ViewModelProvider.Factory {
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(MoviesViewModel.class)) {
-            return (T) new MoviesViewModel(loadFavoriteMoviesUseCase, schedulersFacade);
+            return (T) new MoviesViewModel(moviesRepository, schedulersFacade);
         }
         throw new IllegalArgumentException("Unknown ViewModel class");
     }

@@ -1,20 +1,18 @@
 package com.techbeloved.moviesbeloved.data.source;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import androidx.annotation.NonNull;
 import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
 import com.techbeloved.moviesbeloved.data.models.VideoEntity;
 import io.reactivex.Flowable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Concrete implementation to load movies from the data sources into a cache
@@ -22,9 +20,7 @@ import javax.inject.Singleton;
 @Singleton
 public class MoviesRepository implements MoviesDataSource {
 
-    private static MoviesRepository INSTANCE = null;
-
-//    private final MoviesDataSource mMoviesRemoteDataSource;
+    private final MoviesDataSource mMoviesRemoteDataSource;
 
     private final MoviesDataSource mMoviesLocalDataSource;
 
@@ -34,16 +30,12 @@ public class MoviesRepository implements MoviesDataSource {
 
     // prevent direct instantiation
     @Inject
-    public MoviesRepository(//@NonNull MoviesDataSource moviesRemoteDataSource,
+    public MoviesRepository(@NonNull @Remote MoviesDataSource moviesRemoteDataSource,
                             @NonNull @Local MoviesDataSource moviesLocalDataSource) {
-//        mMoviesRemoteDataSource = moviesRemoteDataSource;
+        mMoviesRemoteDataSource = moviesRemoteDataSource;
         mMoviesLocalDataSource = moviesLocalDataSource;
     }
 
-
-    public static void destroyInstance() {
-        INSTANCE = null;
-    }
 
     /**
      * Gets Movies local data source or remote data source, depending on whether favorites are requested or not
@@ -51,71 +43,20 @@ public class MoviesRepository implements MoviesDataSource {
      *  sends signal when data is ready
      */
     @Override
-    public Flowable<List<MovieEntity>> getMovies(MovieFilterType filterType/*, @NonNull final LoadMoviesCallback callback*/) {
+    public Flowable<List<MovieEntity>> getMovies(MovieFilterType filterType, int page) {
 
         // Determine if favorites or others that can be fetched from remote data source
         switch (filterType) {
             // Only favorites are saved locally
             case FAVORITES:
-                return mMoviesLocalDataSource.getMovies(filterType);
-//                break;
-            case POPULAR:
-            case TOP_RATED:
-//                mMoviesRemoteDataSource.getMovies(filterType, new LoadMoviesCallback() {
-//                    @Override
-//                    public void onMoviesLoaded(List<MovieEntity> movies) {
-//                        callback.onMoviesLoaded(movies);
-//                    }
-//
-//                    @Override
-//                    public void onDataNotAvailable() {
-//                        callback.onDataNotAvailable();
-//                    }
-//                });
-                break;
+                return mMoviesLocalDataSource.getMovies(filterType, page);
             default:
-//                callback.onDataNotAvailable();
+                return mMoviesRemoteDataSource.getMovies(filterType, page);
         }
-        return null;
     }
-
-//    @Override
-//    public void getMovies(MovieFilterType filterType, int page, @NonNull final LoadMoviesCallback callback) {
-//        // Given page number, results must come from remote sources
-//        // However, we must be double sure
-//        switch (filterType) {
-//            case POPULAR:
-//            case TOP_RATED:
-//                mMoviesRemoteDataSource.getMovies(filterType, page, new LoadMoviesCallback() {
-//                    @Override
-//                    public void onMoviesLoaded(List<MovieEntity> movies) {
-//                        callback.onMoviesLoaded(movies);
-//                    }
-//
-//                    @Override
-//                    public void onDataNotAvailable() {
-//                        callback.onDataNotAvailable();
-//                    }
-//                });
-//                break;
-//            default:
-//                callback.onDataNotAvailable();
-//        }
-//    }
 
     @Override
     public LiveData<MovieEntity> getMovie(final int movieId/*, @NonNull final GetMovieCallback callback*/) {
-
-        // First check whether the requested movie is stored locally as a favorite. If not, then request from remote
-//        MovieEntity cachedMovie = getMovieWithId(movieId);
-
-//        // Respond immediately with cache if available
-//        if (cachedMovie != null) {
-//            callback.onMovieLoaded(cachedMovie);
-//            return;
-//        }
-
-        // Load from server/persisted if needed
 
         return mMoviesLocalDataSource.getMovie(movieId);
     }
@@ -164,33 +105,6 @@ public class MoviesRepository implements MoviesDataSource {
         if (mCachedMovies != null) mCachedMovies.remove(movieId);
     }
 
-    /**
-     //     * @param movieId is the id of the movie you need the reviews
-     //     * @param callback is used to return the results
-     //     */
-//    @Override
-//    public void getReviews(int movieId, @NonNull final LoadReviewsCallback callback) {
-//
-//        // We are just going to do some basic implementations to test out things actually.
-//        // Afterwards, we can make them more robust by incorporating cache
-//        mMoviesRemoteDataSource.getReviews(movieId, new LoadReviewsCallback() {
-//            @Override
-//            public void onReviewsLoaded(List<ReviewEntity> reviews) {
-//                callback.onReviewsLoaded(reviews);
-//            }
-//
-//            @Override
-//            public void onDataNotAvailable() {
-//                callback.onDataNotAvailable();
-//            }
-//        });
-//    }
-
-//    @Override
-//    public void getReviews(int movieId, int page, @NonNull LoadReviewsCallback callback) {
-//
-//    }
-
     @Override
     public void saveReview(@NonNull ReviewEntity review) {
         mMoviesLocalDataSource.saveReview(review);
@@ -200,21 +114,6 @@ public class MoviesRepository implements MoviesDataSource {
     public void deleteReviews(int movieId) {
         mMoviesLocalDataSource.deleteReviews(movieId);
     }
-
-//    @Override
-//    public void getVideos(int movieId, @NonNull final LoadVideosCallback callback) {
-//        mMoviesRemoteDataSource.getVideos(movieId, new LoadVideosCallback() {
-//            @Override
-//            public void onVideosLoaded(List<VideoEntity> videos) {
-//                callback.onVideosLoaded(videos);
-//            }
-//
-//            @Override
-//            public void onDataNotAvailable() {
-//                callback.onDataNotAvailable();
-//            }
-//        });
-//    }
 
     @Override
     public void saveVideo(@NonNull VideoEntity video) {

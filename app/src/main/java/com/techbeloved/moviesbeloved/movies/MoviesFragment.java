@@ -18,12 +18,12 @@ import com.techbeloved.moviesbeloved.databinding.FragmentMoviesBinding;
 import com.techbeloved.moviesbeloved.di.ActivityScope;
 import com.techbeloved.moviesbeloved.moviedetails.MovieDetailActivity;
 import com.techbeloved.moviesbeloved.utils.EndlessScrollListener;
-import dagger.android.support.DaggerFragment;
 import timber.log.Timber;
 
 import javax.inject.Inject;
 import java.util.List;
 
+import static com.techbeloved.moviesbeloved.MovieFilterType.*;
 import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_ID_EXTRA;
 
 /**
@@ -93,10 +93,18 @@ public class MoviesFragment extends Fragment {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 Timber.i("Loading page: %s", (page + 1));
-                mCurrentPage = page + 1;
+                setNextPageToLoad(getCurrentPage() + 1);
 //                mPresenter.loadMoreMovies(page + 1); // The first page is actually 1 not 0, so increment to match the api
             }
         };
+    }
+
+    private int getCurrentPage() {
+        return mViewModel.getCurrentPage();
+    }
+
+    private void setNextPageToLoad(int page) {
+        mViewModel.setNextPage(page);
     }
 
     @Override
@@ -121,19 +129,11 @@ public class MoviesFragment extends Fragment {
 
         mViewModel = ViewModelProviders.of(this, mViewModelFactory).get(MoviesViewModel.class);
         subscribeUi(mViewModel);
-
-        // restore state if any saved property
-        if (savedInstanceState != null) {
-            Timber.i("Any saved instance?");
-            mCurrentFilter = (MovieFilterType) savedInstanceState.getSerializable(CURRENT_FILTERING);
-        } else if (mCurrentFilter == null) {
-            mCurrentFilter = MovieFilterType.POPULAR; // Default filter type
-        }
     }
 
     private void subscribeUi(MoviesViewModel viewModel) {
-        viewModel.loadFavoriteMovies();
-        viewModel.response().observe(this, this::processResponse);
+//        viewModel.loadFavoriteMovies();
+        viewModel.getMovieCollectionResponse().observe(this, this::processResponse);
 //        viewModel.getMovies().observe(this, this::processResponse);
     }
 
@@ -148,6 +148,8 @@ public class MoviesFragment extends Fragment {
                 Timber.i("Got some data");
                 break;
             case ERROR:
+                listResponse.error.printStackTrace();
+                Timber.e("Ouch! Something bad happened");
                 showLoadingMoviesError();
                 break;
         }
@@ -167,74 +169,60 @@ public class MoviesFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        Timber.i("onSavedInstanceState is called");
-//        outState.putInt(CURRENT_PAGE, mCurrentPage);
-//        outState.putSerializable(CURRENT_FILTERING, mPresenter.getFiltering());
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        // Because we only want favorite to reload perhaps new stuff has been added
-//        if (mPresenter.getFiltering() != MovieFilterType.FAVORITES) {
-//            mPresenter.setShouldReload(false);
-//        } else {
-//            mPresenter.setShouldReload(true);
-//        }
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.movies_fragment_menu, menu);
         // Initialise menu items
         Timber.i("onCreateOptionsMenu is called");
-        // FIXME: 10/9/18 We are only testing with favorites for now
+        // DONE: 10/9/18 We are only testing with favorites for now
         menu.findItem(R.id.favorites_filter_menu).setChecked(true);
-////        switch (mPresenter.getFiltering()) {
-////            case TOP_RATED:
-////                menu.findItem(R.id.top_rated_filter_menu).setChecked(true);
-////                break;
-////            case POPULAR:
-////                menu.findItem(R.id.popularity_filter_menu).setChecked(true);
-////                break;
-////            case FAVORITES:
-////                menu.findItem(R.id.favorites_filter_menu).setChecked(true);
-////                break;
-//        }
+        switch (getFiltering()) {
+            case TOP_RATED:
+                menu.findItem(R.id.top_rated_filter_menu).setChecked(true);
+                break;
+            case POPULAR:
+                menu.findItem(R.id.popularity_filter_menu).setChecked(true);
+                break;
+            case FAVORITES:
+                menu.findItem(R.id.favorites_filter_menu).setChecked(true);
+                break;
+        }
+    }
+
+    private MovieFilterType getFiltering() {
+        return mViewModel.getFiltering();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()){
-//            case R.id.top_rated_filter_menu:
-//                mCurrentFilter = MovieFilterType.TOP_RATED;
-//                mPresenter.setFiltering(mCurrentFilter);
-//                if (!item.isChecked()) {
-//                    // Only reload if the item is not the currently selected filter
-//                    reloadMovies();
-//                }
-//                break;
-//            case R.id.popularity_filter_menu:
-//                mCurrentFilter = MovieFilterType.POPULAR;
-//                mPresenter.setFiltering(mCurrentFilter);
-//                if (!item.isChecked()) {
-//                    reloadMovies();
-//                }
-//                break;
-//            case R.id.favorites_filter_menu:
-//                mCurrentFilter = MovieFilterType.FAVORITES;
-//                mPresenter.setFiltering(mCurrentFilter);
-//                if (!item.isChecked()) {
-//                    Timber.i("Should reload");
-//                    reloadMovies();
-//                }
-//                break;
-//        }
+        switch (item.getItemId()) {
+            case R.id.top_rated_filter_menu:
+                setFiltering(TOP_RATED);
+                if (!item.isChecked()) {
+                    // Only reload if the item is not the currently selected filter
+                    reloadMovies();
+                }
+                break;
+            case R.id.popularity_filter_menu:
+                setFiltering(POPULAR);
+                if (!item.isChecked()) {
+                    reloadMovies();
+                }
+                break;
+            case R.id.favorites_filter_menu:
+                setFiltering(FAVORITES);
+                if (!item.isChecked()) {
+                    Timber.i("Should reload");
+                    reloadMovies();
+                }
+                break;
+        }
         // Finally check the item
         item.setChecked(true);
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setFiltering(MovieFilterType filterType) {
+        mViewModel.setFilterType(filterType);
     }
 
     /**
@@ -243,7 +231,7 @@ public class MoviesFragment extends Fragment {
     private void reloadMovies() {
         mAdapter.clear();
         ((EndlessScrollListener) mOnScrollListener).resetState();
-//        mPresenter.loadMovies(true);
+        // ViewModel is reloaded automatically. So no need to do any other thing
     }
 
     public void setLoadingIndicator(boolean active) {
@@ -252,18 +240,15 @@ public class MoviesFragment extends Fragment {
 
     public void showMovies(List<MovieEntity> movies) {
         setLoadingIndicator(false);
-        mAdapter.clear();
+        Timber.i("How many movies did I receive? %s", movies.size());
+//        mAdapter.clear();
         mAdapter.setMovieList(movies);
     }
-
-
-    public void showMoreMovies(List<MovieEntity> movies) {
-        mAdapter.setMovieList(movies);
-    }
-
 
     public void showLoadingMoviesError() {
-
+        setLoadingIndicator(false);
+        mBinding.emptyTextview.setText("Error loading movies");
+        mBinding.setIsEmpty(true);
     }
 
 

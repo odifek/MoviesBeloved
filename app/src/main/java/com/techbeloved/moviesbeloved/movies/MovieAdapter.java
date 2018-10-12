@@ -1,22 +1,16 @@
 package com.techbeloved.moviesbeloved.movies;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
+import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
-import com.bumptech.glide.Glide;
+import androidx.recyclerview.widget.RecyclerView;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
+import com.techbeloved.moviesbeloved.databinding.MovieItemBinding;
 
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import com.techbeloved.moviesbeloved.databinding.MovieItemBinding;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
     private List<MovieEntity> mMovieList;
@@ -28,13 +22,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     public void setMovieList(final List<MovieEntity> movieList) {
         if (movieList != null) {
-            if (mMovieList == null) {
-                mMovieList = movieList;
-                notifyItemRangeInserted(0, movieList.size());
-            } else {
-                mMovieList.addAll(movieList);
-                notifyItemRangeInserted(mMovieList.size(), movieList.size());
-            }
+            mMovieList = movieList;
+            notifyDataSetChanged();
         }
     }
 
