@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.data.models.Movie;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
     private List<MovieEntity> mMovieList;
-    final MovieClickCallback mMovieClickCallback;
+    private final MovieClickCallback mMovieClickCallback;
 
     public MovieAdapter(MovieClickCallback clickCallback) {
         this.mMovieClickCallback = clickCallback;
@@ -22,9 +23,32 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     public void setMovieList(final List<MovieEntity> movieList) {
         if (movieList != null) {
-            mMovieList = movieList;
-            notifyDataSetChanged();
+            if (mMovieList == null) {
+                mMovieList = movieList;
+                notifyDataSetChanged();
+            } else {
+                updateMovieList(movieList);
+            }
         }
+    }
+
+    // FIXED: 10/12/18 This is not working yet
+
+    private void updateMovieList(List<MovieEntity> movieList) {
+        final MovieDiffCallback diffCallback = new MovieDiffCallback(mMovieList, movieList);
+
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
+        this.mMovieList = movieList;
+        diffResult.dispatchUpdatesTo(MovieAdapter.this);
+
+//        Observable.fromCallable(() -> DiffUtil.calculateDiff(diffCallback))
+//                .subscribeOn(Schedulers.computation())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(diffResult -> {
+//                    mMovieList = movieList;
+//                    diffResult.dispatchUpdatesTo(MovieAdapter.this);
+//                });
+
     }
 
     @NonNull
