@@ -3,6 +3,7 @@ package com.techbeloved.moviesbeloved.movies;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.*;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
@@ -24,6 +25,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 import static com.techbeloved.moviesbeloved.MovieFilterType.*;
+import static com.techbeloved.moviesbeloved.common.viewmodel.Status.ERROR;
 import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_ID_EXTRA;
 
 /**
@@ -86,9 +88,14 @@ public class MoviesFragment extends Fragment {
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 Timber.i("Loading page: %s", (page + 1));
                 setNextPageToLoad(getCurrentPage() + 1);
-//                mPresenter.loadMoreMovies(page + 1); // The first page is actually 1 not 0, so increment to match the api
+                setShouldLoadNextPage();
+                // FIXME: 10/12/18 onLoadMore should be triggered each time even when there is no network
             }
         };
+    }
+
+    private void setShouldLoadNextPage() {
+        mViewModel.setShouldLoadNextPage(true);
     }
 
     private int getCurrentPage() {
@@ -115,9 +122,19 @@ public class MoviesFragment extends Fragment {
     }
 
     private void subscribeUi(MoviesViewModel viewModel) {
-//        viewModel.loadFavoriteMovies();
         viewModel.getMovieCollectionResponse().observe(this, this::processResponse);
-//        viewModel.getMovies().observe(this, this::processResponse);
+        viewModel.response().observe(this, listResponse -> {
+            if (listResponse.status == ERROR) {
+                listResponse.error.printStackTrace();
+//                // We want the Endless scroll to try again
+//                ((EndlessScrollListener) mOnScrollListener).resetLoadingState();
+                showNetworkError();
+            }
+        });
+    }
+
+    private void showNetworkError() {
+        Toast.makeText(getContext(), "Network Error: unable to load movies", Toast.LENGTH_SHORT).show();
     }
 
     private void processResponse(Response<List<MovieEntity>> listResponse) {
@@ -223,7 +240,7 @@ public class MoviesFragment extends Fragment {
 
     public void showMovies(List<MovieEntity> movies) {
         setLoadingIndicator(false);
-        mAdapter.updateItems(movies);
+        mAdapter.updateMovieList(movies);
     }
 
     public void showLoadingMoviesError() {

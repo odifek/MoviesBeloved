@@ -23,12 +23,18 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         this.mMovieClickCallback = clickCallback;
     }
 
-
-    public void updateItems(final List<MovieEntity> newMovies) {
-        updateItemsInternal(newMovies);
+    public void updateMovieList(final List<MovieEntity> movieList) {
+        if (movieList != null) {
+            if (mMovieList.isEmpty()) {
+                mMovieList.addAll(movieList);
+                notifyDataSetChanged();
+            } else {
+                updateItemsInternal(movieList);
+            }
+        }
     }
 
-    public void updateItemsInternal(final List<MovieEntity> newMovies) {
+    private void updateItemsInternal(final List<MovieEntity> newMovies) {
         final List<MovieEntity> oldItems = new ArrayList<>(this.mMovieList);
 
         final MovieDiffCallback diffCallback = new MovieDiffCallback(oldItems, newMovies);
@@ -46,9 +52,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
     private void dispatchUpdates(List<MovieEntity> newMovies, DiffUtil.DiffResult diffResult) {
-        diffResult.dispatchUpdatesTo(this);
         mMovieList.clear();
         mMovieList.addAll(newMovies);
+        diffResult.dispatchUpdatesTo(this);
     }
 
     @NonNull

@@ -1,6 +1,7 @@
 package com.techbeloved.moviesbeloved.movies;
 
 import androidx.databinding.Observable;
+import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
 import androidx.databinding.ObservableInt;
 import androidx.lifecycle.MutableLiveData;
@@ -24,6 +25,8 @@ public class MoviesViewModel extends ViewModel {
             new ObservableField<>(MovieFilterType.POPULAR);
 
     private final ObservableInt currentPage = new ObservableInt(1);
+
+    private final ObservableBoolean shouldLoadNext = new ObservableBoolean(true);
 
     private final MoviesRepository mMoviesRepository;
 
@@ -55,8 +58,10 @@ public class MoviesViewModel extends ViewModel {
         currentPage.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
             @Override
             public void onPropertyChanged(Observable sender, int propertyId) {
-                disposables.clear();
-                loadNextPage();
+                if (shouldLoadNext.get()) {
+                    disposables.clear();
+                    loadNextPage();
+                }
             }
         });
 
@@ -115,7 +120,13 @@ public class MoviesViewModel extends ViewModel {
                             response.setValue(Response.success(movieEntities));
                             addToMoviesCollection(movieEntities);
                         },
-                        throwable -> response.setValue(Response.error(throwable))
+                        throwable -> {
+                            response.setValue(Response.error(throwable));
+                            // We didn't get any data, reset the currentPage to previous
+                            // set current page triggers a reload, we tell it to not query again if on error
+                            currentPage.set(currentPage.get() > 1 ? currentPage.get() - 1 : 1);
+                            shouldLoadNext.set(false);
+                        }
                 )
         );
     }
@@ -151,5 +162,10 @@ public class MoviesViewModel extends ViewModel {
 
     public int getCurrentPage() {
         return currentPage.get();
+    }
+
+    // View can calls this when it specifically request for next page through page scrolling
+    public void setShouldLoadNextPage(boolean shouldLoadNext) {
+        this.shouldLoadNext.set(shouldLoadNext);
     }
 }
