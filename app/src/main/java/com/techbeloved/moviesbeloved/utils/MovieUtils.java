@@ -2,11 +2,7 @@ package com.techbeloved.moviesbeloved.utils;
 
 import android.net.Uri;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
-import android.util.TimeUtils;
-
 import com.techbeloved.moviesbeloved.data.models.*;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 import static com.techbeloved.moviesbeloved.utils.Constants.*;
 
@@ -63,7 +58,7 @@ public class MovieUtils {
                 movieInfo.setBackdropUrl(buildImageUrl(backdropPath, DEFAULT_BACKDROP_SIZE));
             }
             if (!genreList.isEmpty()) {
-                movieInfo.setGenres(genreList);
+//                movieInfo.setGenres(genreList);
             }
 
             return (MovieEntity) movieInfo;
@@ -94,11 +89,11 @@ public class MovieUtils {
         return year;
     }
 
-    public static String getGenres(List<String> genres) {
+    public static String getGenres(List<Genre> genres) {
         if (genres != null && !genres.isEmpty()) {
             StringBuilder builder = new StringBuilder();
             for (int i = 0, j = genres.size(); i < j; i++) {
-                builder.append(genres.get(i));
+                builder.append(genres.get(i).name);
                 if (i != j - 1) builder.append(" | ");
             }
             return builder.toString();

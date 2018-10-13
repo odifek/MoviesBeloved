@@ -1,54 +1,15 @@
 package com.techbeloved.moviesbeloved.moviedetails;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.widget.ContentLoadingProgressBar;
-import androidx.databinding.DataBindingUtil;
-import androidx.recyclerview.widget.RecyclerView;
-import com.techbeloved.moviesbeloved.YoutubePlayerActivity;
-import com.techbeloved.moviesbeloved.data.models.*;
-import com.techbeloved.moviesbeloved.databinding.ActivityMovieDetailBinding;
-import com.techbeloved.moviesbeloved.moviedetails.reviews.ReviewAdapter;
-import com.techbeloved.moviesbeloved.moviedetails.videos.VideoAdapter;
-import com.techbeloved.moviesbeloved.moviedetails.videos.VideoClickCallback;
-import com.techbeloved.moviesbeloved.utils.Constants;
-import timber.log.Timber;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.RatingBar;
-import android.widget.TextView;
-
-import com.bumptech.glide.Glide;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.techbeloved.moviesbeloved.R;
-
-import java.util.List;
-
-import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_ID_EXTRA;
-import static com.techbeloved.moviesbeloved.utils.MovieUtils.getYearFromDate;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
-//    private static final String TAG = MovieDetailActivity.class.getSimpleName();
-//
-//    private MovieDetailContract.Presenter mPresenter;
-//
-//    private  boolean mIsActive;
-//
-//    private int mCurrentMovieId;
-//
+    private static final String TAG = MovieDetailActivity.class.getSimpleName();
+
 //    private View.OnClickListener mFavFabOnclickListener = new View.OnClickListener() {
 //        @Override
 //        public void onClick(View view) {
-//            mPresenter.toggleFavorite();
+//           toggleFavorite();
 //        }
 //    };
 //
@@ -56,7 +17,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 //        @Override
 //        public void onClick(Video video) {
 //            Timber.i("video onClick was called!");
-//            mPresenter.playVideo(video);
+//            playVideo(video);
 //        }
 //    };
 //

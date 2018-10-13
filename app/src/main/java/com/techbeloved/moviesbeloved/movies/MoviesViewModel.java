@@ -98,7 +98,6 @@ public class MoviesViewModel extends ViewModel {
         if (getCurrentFilter() == MovieFilterType.FAVORITES || currentPage.get() == 1) {
             loadMovies();
         } else {
-            // trigger next page load
             resetPage();
         }
     }

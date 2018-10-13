@@ -1,12 +1,12 @@
 package com.techbeloved.moviesbeloved.data.source;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
 import com.techbeloved.moviesbeloved.data.models.VideoEntity;
 import io.reactivex.Flowable;
+import io.reactivex.Single;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -56,19 +56,22 @@ public class MoviesRepository implements MoviesDataSource {
     }
 
     @Override
-    public LiveData<MovieEntity> getMovie(final int movieId/*, @NonNull final GetMovieCallback callback*/) {
-
-        return mMoviesLocalDataSource.getMovie(movieId);
+    public Single<MovieEntity> getMovie(final int movieId/*, @NonNull final GetMovieCallback callback*/) {
+        if (mCachedMovies.containsKey(movieId)) {
+            return Single.fromCallable(() -> mCachedMovies.get(movieId));
+        }
+        return mMoviesRemoteDataSource.getMovie(movieId)
+                .doOnSuccess(movieEntity -> mCachedMovies.put(movieEntity.getId(), movieEntity));
     }
 
     @Override
-    public LiveData<List<ReviewEntity>> getReviews(int movieId) {
-        return null;
+    public Flowable<List<ReviewEntity>> getReviews(int movieId) {
+        return mMoviesRemoteDataSource.getReviews(movieId);
     }
 
     @Override
-    public LiveData<List<VideoEntity>> getVideos(int movieId) {
-        return null;
+    public Flowable<List<VideoEntity>> getVideos(int movieId) {
+        return mMoviesRemoteDataSource.getVideos(movieId);
     }
 
     /**

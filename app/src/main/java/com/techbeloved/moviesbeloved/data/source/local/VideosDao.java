@@ -3,6 +3,7 @@ package com.techbeloved.moviesbeloved.data.source.local;
 import androidx.lifecycle.LiveData;
 import androidx.room.*;
 import com.techbeloved.moviesbeloved.data.models.VideoEntity;
+import io.reactivex.Flowable;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
 public interface VideosDao {
 
     @Query("SELECT * FROM videos WHERE movie_id = :movieId")
-    LiveData<List<VideoEntity>> getVideos(int movieId);
+    Flowable<List<VideoEntity>> getVideos(int movieId);
 
     @Query("SELECT * FROM videos WHERE video_id = :videoId")
     LiveData<VideoEntity> getVideoById(String videoId);

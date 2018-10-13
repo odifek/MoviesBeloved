@@ -7,7 +7,7 @@ import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
 import com.techbeloved.moviesbeloved.data.models.VideoEntity;
 
-@Database(entities = {MovieEntity.class, ReviewEntity.class, VideoEntity.class}, version = 3, exportSchema = false)
+@Database(entities = {MovieEntity.class, ReviewEntity.class, VideoEntity.class}, version = 4, exportSchema = false)
 @TypeConverters({DateConverter.class, ListConverter.class})
 public abstract class FavoriteDatabase extends RoomDatabase {
     private static FavoriteDatabase INSTANCE;

@@ -11,7 +11,8 @@ public interface Movie {
     String getSynopsis();
     float getUserRating();
     Date getReleaseDate();
-    List<String> getGenres();
+
+    List<Genre> getGenres();
     boolean isFavorite();
 
     int getRuntime();
@@ -21,7 +22,8 @@ public interface Movie {
     void setSynopsis(String synopsis);
     void setUserRating(float userRating);
     void setReleaseDate(Date releaseDate);
-    void setGenres(List<String> genres);
+
+    void setGenres(List<Genre> genres);
     void setFavorite(boolean favorite);
     void setId(int id);
     void setTitle(String title);

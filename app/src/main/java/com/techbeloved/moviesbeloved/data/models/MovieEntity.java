@@ -33,11 +33,11 @@ public class MovieEntity implements Movie {
     private String posterPath;
 
     @ColumnInfo(name = "backdrop_url")
-    @SerializedName("backdrop_url")
+    @SerializedName("backdrop_path")
     private String backdropUrl;
 
     @ColumnInfo(name = "genres")
-    private List<String> genres;
+    private List<Genre> genres;
 
     @ColumnInfo(name = "average_rating")
     @SerializedName("vote_average")
@@ -94,7 +94,7 @@ public class MovieEntity implements Movie {
     }
 
     @Override
-    public void setGenres(@Nullable List<String> genres) {
+    public void setGenres(@Nullable List<Genre> genres) {
         this.genres = genres;
     }
 
@@ -149,7 +149,7 @@ public class MovieEntity implements Movie {
     }
 
     @Override
-    public List<String> getGenres() {
+    public List<Genre> getGenres() {
         return this.genres;
     }
 

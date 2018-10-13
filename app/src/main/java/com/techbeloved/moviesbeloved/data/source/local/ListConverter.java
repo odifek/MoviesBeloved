@@ -1,25 +1,27 @@
 package com.techbeloved.moviesbeloved.data.source.local;
 
+import androidx.room.TypeConverter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.techbeloved.moviesbeloved.data.models.Genre;
 
 import java.lang.reflect.Type;
 import java.util.List;
 
-import androidx.room.TypeConverter;
-
 public class ListConverter {
     @TypeConverter
-    public static List<String> toStringList(String jsonString) {
+    public static List<Genre> toGenreList(String jsonString) {
         Gson gson = new Gson();
-        Type type = new TypeToken<List<String>>(){}.getType();
+        Type type = new TypeToken<List<Genre>>() {
+        }.getType();
         return gson.fromJson(jsonString, type);
     }
 
     @TypeConverter
-    public static String toJsonString(List<String> stringList) {
+    public static String toJsonString(List<Genre> genreList) {
         Gson gson = new Gson();
-        Type type = new TypeToken<List<String>>(){}.getType();
-        return gson.toJson(stringList, type);
+        Type type = new TypeToken<List<Genre>>() {
+        }.getType();
+        return gson.toJson(genreList, type);
     }
 }

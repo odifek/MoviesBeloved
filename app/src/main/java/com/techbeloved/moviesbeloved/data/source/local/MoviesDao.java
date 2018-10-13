@@ -1,16 +1,11 @@
 package com.techbeloved.moviesbeloved.data.source.local;
 
-import androidx.lifecycle.LiveData;
+import androidx.room.*;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 
 import java.util.List;
-
-import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
-import androidx.room.Query;
-import androidx.room.Update;
-import io.reactivex.Flowable;
 
 @Dao
 public interface MoviesDao {
@@ -19,7 +14,7 @@ public interface MoviesDao {
     Flowable<List<MovieEntity>> getMovies();
 
     @Query("SELECT * FROM movies WHERE movie_id = :movieId")
-    LiveData<MovieEntity> getMovieById(int movieId);
+    Single<MovieEntity> getMovieById(int movieId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMovie(MovieEntity movie);

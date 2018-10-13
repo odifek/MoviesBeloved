@@ -5,5 +5,7 @@ public enum MovieFilterType {
 
     TOP_RATED,
 
+    LATEST,
+
     FAVORITES
 }

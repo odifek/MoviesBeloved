@@ -1,20 +1,22 @@
 package com.techbeloved.moviesbeloved.data.source.remote;
 
+import android.content.Context;
 import com.google.gson.GsonBuilder;
 import com.techbeloved.moviesbeloved.BuildConfig;
 import com.techbeloved.moviesbeloved.data.source.remote.api.TMDBMovieService;
 import com.techbeloved.moviesbeloved.utils.Constants;
+import com.techbeloved.moviesbeloved.utils.NetworkUtils;
 import dagger.Module;
 import dagger.Provides;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
+import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 @Module
@@ -29,7 +31,7 @@ public class NetworkModule {
 
     @Singleton
     @Provides
-    static OkHttpClient providesOkhttp() {
+    static OkHttpClient providesOkhttp(Interceptor cacheControlInterceptor, @Named("http_cache") Cache httpCacheFile) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(CONNECT_TIMEOUT_IN_MS, TimeUnit.MILLISECONDS)
                 .addInterceptor(chain -> {
@@ -41,6 +43,8 @@ public class NetworkModule {
                     request = request.newBuilder().url(url).build();
                     return chain.proceed(request);
                 });
+//                .addNetworkInterceptor(cacheControlInterceptor)
+//                .cache(httpCacheFile);
         if (BuildConfig.DEBUG) {
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -68,5 +72,34 @@ public class NetworkModule {
     @Provides
     static TMDBMovieService providesTmdbMovieService(Retrofit retrofit) {
         return retrofit.create(TMDBMovieService.class);
+    }
+
+    @Singleton
+    @Provides
+    static Interceptor REWRITE_CACHE_CONTROL_INTERCEPTOR(Context context) {
+        return chain -> {
+            Response originalResponse = chain.proceed(chain.request());
+            if (NetworkUtils.isNetworkAvailable(context)) {
+                int maxAge = 60; // read from cache for 1 minute
+                return originalResponse.newBuilder()
+                        .header("Cache-control", "public, max-age=" + maxAge)
+                        .build();
+            } else {
+                int maxStale = 60 * 60 * 24 * 28; // tolerate 4-weeks stale
+                return originalResponse.newBuilder()
+                        .header("Cache-Control", "public, only-if-cached, max-stale=" + maxStale)
+                        .build();
+            }
+        };
+    }
+
+    @Singleton
+    @Provides
+    @Named("http_cache")
+    static Cache providesLocalCache(Context context) {
+        File httpCacheDirectory = new File(context.getCacheDir(), "responses");
+        int cacheSize = 10 * 1024 * 1024; // 10 MB
+
+        return new Cache(httpCacheDirectory, cacheSize);
     }
 }

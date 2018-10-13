@@ -1,12 +1,12 @@
 package com.techbeloved.moviesbeloved.data.source;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
 import com.techbeloved.moviesbeloved.data.models.VideoEntity;
 import io.reactivex.Flowable;
+import io.reactivex.Single;
 
 import java.util.List;
 
@@ -17,11 +17,11 @@ public interface MoviesDataSource {
     // Use LiveData onwards
     Flowable<List<MovieEntity>> getMovies(MovieFilterType filterType, int page);
 
-    LiveData<MovieEntity> getMovie(int movieId);
+    Single<MovieEntity> getMovie(int movieId);
 
-    LiveData<List<ReviewEntity>> getReviews(int movieId);
+    Flowable<List<ReviewEntity>> getReviews(int movieId);
 
-    LiveData<List<VideoEntity>> getVideos(int movieId);
+    Flowable<List<VideoEntity>> getVideos(int movieId);
 
     void saveMovie(@NonNull MovieEntity movie);
 
