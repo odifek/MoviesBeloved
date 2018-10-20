@@ -24,7 +24,7 @@ public class MoviesRepository implements MoviesDataSource {
 
     private final MoviesDataSource mMoviesLocalDataSource;
 
-    Map<Integer, MovieEntity> mCachedMovies;
+    private Map<Integer, MovieEntity> mCachedMovies = new LinkedHashMap<>();
 
     boolean mCacheIsDirty = false;
 

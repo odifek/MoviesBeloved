@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.techbeloved.moviesbeloved">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -23,6 +22,7 @@
         <activity
                 android:name=".moviedetails.MovieDetailActivity"
                 android:parentActivityName=".movies.MoviesActivity"
+                android:theme="@style/AppTheme.Detail"
                 android:launchMode="singleTop">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"

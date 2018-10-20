@@ -32,11 +32,6 @@ public class MoviesActivity extends DaggerAppCompatActivity {
             );
         }
 
-        // Load previously saved state, if available
-//        if (savedInstanceState != null) {
-//            MovieFilterType currentFiltering = (MovieFilterType) savedInstanceState.getSerializable(CURRENT_FILTERING_KEY);
-//            mMoviesPresenter.setFiltering(currentFiltering);
-//        }
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.techbeloved.moviesbeloved.MoviesApp;
 import com.techbeloved.moviesbeloved.data.source.MoviesRepository;
 import com.techbeloved.moviesbeloved.data.source.MoviesRepositoryModule;
 import com.techbeloved.moviesbeloved.data.source.remote.NetworkModule;
+import com.techbeloved.moviesbeloved.moviedetails.MovieDetailModule;
 import com.techbeloved.moviesbeloved.movies.ViewModelModule;
 import dagger.BindsInstance;
 import dagger.Component;
@@ -20,7 +21,8 @@ import javax.inject.Singleton;
         ActivityBindinggModule.class,
         MoviesRepositoryModule.class,
         ViewModelModule.class,
-        NetworkModule.class
+        NetworkModule.class,
+        MovieDetailModule.class
 })
 public interface AppComponent extends AndroidInjector<MoviesApp> {
 

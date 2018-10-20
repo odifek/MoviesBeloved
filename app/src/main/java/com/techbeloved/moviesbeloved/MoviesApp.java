@@ -1,5 +1,6 @@
 package com.techbeloved.moviesbeloved;
 
+import android.os.StrictMode;
 import androidx.annotation.VisibleForTesting;
 import com.techbeloved.moviesbeloved.data.source.MoviesRepository;
 import com.techbeloved.moviesbeloved.di.DaggerAppComponent;
@@ -17,6 +18,11 @@ public class MoviesApp extends DaggerApplication {
         super.onCreate();
 
         Timber.plant(new Timber.DebugTree());
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                .permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
     }
 
     @Override

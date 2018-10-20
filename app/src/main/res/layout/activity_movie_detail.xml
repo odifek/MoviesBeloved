@@ -5,6 +5,7 @@
 
     <data>
 
+        <!-- This is not useful here any more-->
         <variable
                 name="movie"
                 type="com.techbeloved.moviesbeloved.data.models.Movie"/>
@@ -20,6 +21,10 @@
         <import
                 type="com.techbeloved.moviesbeloved.utils.MovieUtils"
                 alias="utils"/>
+
+        <variable
+                name="viewModel"
+                type="com.techbeloved.moviesbeloved.moviedetails.MovieDetailViewModel"/>
 
     </data>
 
@@ -42,8 +47,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:fitsSystemWindows="true"
-                    app:title="@{movie.title}"
+                    app:title="@{viewModel.movie.title}"
                     app:contentScrim="?attr/colorPrimary"
+                    app:statusBarScrim="@color/colorPrimaryDark"
                     app:expandedTitleGravity="center"
                     app:expandedTitleMarginEnd="16dp"
                     app:expandedTitleMarginStart="16dp"
@@ -58,7 +64,7 @@
                         android:scaleType="centerCrop"
                         app:layout_collapseMode="parallax"
                         tools:srcCompat="@tools:sample/backgrounds/scenic"
-                        app:imageUrl="@{movie.backdropUrl}"/>
+                        app:imageUrl="@{viewModel.movie.backdropUrl}"/>
 
                 <androidx.appcompat.widget.Toolbar
                         android:id="@+id/toolbar"
@@ -106,7 +112,7 @@
                             android:layout_marginEnd="16dp"
                             android:layout_marginRight="16dp"
                             app:layout_constraintBaseline_toBaselineOf="@+id/runtime_label"
-                            android:text='@{String.valueOf(movie.runtime) + " mins"}'/>
+                            android:text='@{String.valueOf(viewModel.movie.runtime) + " mins"}'/>
 
                     <TextView
                             android:id="@+id/runtime_label"
@@ -139,7 +145,7 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="@+id/original_title_text"
                             tools:srcCompat="@tools:sample/backgrounds/scenic"
-                            app:imageUrl="@{movie.posterUrl}"/>
+                            app:imageUrl="@{viewModel.movie.posterUrl}"/>
 
                     <TextView
                             android:id="@+id/original_title_text"
@@ -156,7 +162,7 @@
                             app:layout_constraintStart_toStartOf="@+id/guideline2"
                             app:layout_constraintTop_toTopOf="parent"
                             tools:text="The secret life of pets"
-                            android:text="@{movie.title}"/>
+                            android:text="@{viewModel.movie.title}"/>
 
                     <androidx.constraintlayout.widget.Guideline
                             android:id="@+id/guideline2"
@@ -173,7 +179,7 @@
                             app:layout_constraintStart_toStartOf="@+id/original_title_text"
                             app:layout_constraintTop_toBottomOf="@+id/original_title_text"
                             tools:text="8.0"
-                            android:text="@{movie.userRating}"/>
+                            android:text="@{viewModel.movie.userRating}"/>
 
                     <RatingBar
                             android:id="@+id/ratingBar"
@@ -185,7 +191,7 @@
                             app:layout_constraintBottom_toBottomOf="@+id/user_rating"
                             app:layout_constraintStart_toEndOf="@+id/user_rating"
                             app:layout_constraintTop_toBottomOf="@+id/original_title_text"
-                            android:rating="@{movie.userRating / 2}"/>
+                            android:rating="@{viewModel.movie.userRating / 2}"/>
 
                     <TextView
                             android:id="@+id/synopsis_label"
@@ -211,7 +217,7 @@
                             app:layout_constraintStart_toStartOf="@+id/synopsis_label"
                             app:layout_constraintTop_toBottomOf="@+id/synopsis_label"
                             tools:text="This is the real deal movie that can elicit joy and love in you"
-                            android:text="@{movie.synopsis}"/>
+                            android:text="@{viewModel.movie.synopsis}"/>
 
                     <TextView
                             android:id="@+id/year_label"
@@ -232,7 +238,7 @@
                             app:layout_constraintBaseline_toBaselineOf="@+id/year_label"
                             app:layout_constraintStart_toStartOf="@+id/ratingBar"
                             tools:text="2015"
-                            android:text='@{movie.releaseDate != null ? utils.getYearFromDate(movie.releaseDate) : ""}'/>
+                            android:text='@{viewModel.movie.releaseDate != null ? utils.getYearFromDate(viewModel.movie.releaseDate) : ""}'/>
 
                     <TextView
                             android:id="@+id/genre_text"
@@ -249,7 +255,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="@+id/guideline2"
                             app:layout_constraintTop_toBottomOf="@+id/release_year_text"
-                            android:text='@{movie.genres != null ? utils.getGenres(movie.genres) : ""}'
+                            android:text='@{viewModel.movie.genres != null ? utils.getGenres(viewModel.movie.genres) : ""}'
                             tools:text="Comedy"/>
 
                     <TextView
@@ -325,7 +331,7 @@
                 app:layout_anchorGravity="bottom|right"
                 android:layout_marginRight="16dp"
                 app:visibleGone="@{!isLoading}"
-                android:src="@{movie.favorite || isFavorite ? @drawable/ic_favorite : @drawable/ic_unfavorite}"/>
+                android:src="@{viewModel.movie.favorite || viewModel.isFavorite ? @drawable/ic_favorite : @drawable/ic_unfavorite}"/>
 
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

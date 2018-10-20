@@ -85,7 +85,7 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
         }
 
         // Append backdrop url also
-        if (!movieEntity.getBackdropUrl().isEmpty()) {
+        if (null != movieEntity.getBackdropUrl()) {
             Uri.Builder backdropBuilder = Uri.parse(baseImageUrl).buildUpon();
             backdropBuilder.appendEncodedPath(Constants.DEFAULT_BACKDROP_SIZE);
             backdropBuilder.appendEncodedPath(movieEntity.getBackdropUrl());

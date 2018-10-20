@@ -42,9 +42,9 @@ public class NetworkModule {
                             .build();
                     request = request.newBuilder().url(url).build();
                     return chain.proceed(request);
-                });
-//                .addNetworkInterceptor(cacheControlInterceptor)
-//                .cache(httpCacheFile);
+                })
+                .addNetworkInterceptor(cacheControlInterceptor)
+                .cache(httpCacheFile);
         if (BuildConfig.DEBUG) {
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -76,10 +76,10 @@ public class NetworkModule {
 
     @Singleton
     @Provides
-    static Interceptor REWRITE_CACHE_CONTROL_INTERCEPTOR(Context context) {
+    static Interceptor REWRITE_CACHE_CONTROL_INTERCEPTOR() {
         return chain -> {
             Response originalResponse = chain.proceed(chain.request());
-            if (NetworkUtils.isNetworkAvailable(context)) {
+            if (NetworkUtils.isInternetAvailable()) {
                 int maxAge = 60; // read from cache for 1 minute
                 return originalResponse.newBuilder()
                         .header("Cache-control", "public, max-age=" + maxAge)

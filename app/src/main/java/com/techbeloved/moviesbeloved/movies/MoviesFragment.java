@@ -76,11 +76,11 @@ public class MoviesFragment extends Fragment {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Timber.i("onCreate is called!");
         super.onCreate(savedInstanceState);
         mAdapter = new MovieAdapter(movie -> {
             // COMPLETED: 9/21/18 implement onclick
-//            mPresenter.openMovieDetails(movie.getId());
+            Timber.i("Movie Id is: %s", movie.getId());
+            showMovieDetails(movie.getId());
         });
         mLayoutManager = new GridLayoutManager(getContext(), getContext().getResources().getInteger(R.integer.movie_grid_span_count));
         mOnScrollListener = new EndlessScrollListener(mLayoutManager) {
