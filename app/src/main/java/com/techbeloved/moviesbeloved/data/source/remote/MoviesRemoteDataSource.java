@@ -26,7 +26,7 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
 
     private TMDBMovieService movieService;
 
-    private String maxRealeaseDate;
+    private String maxReleaseDate;
 
 
     @Inject
@@ -35,7 +35,7 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
-        maxRealeaseDate = dateFormat.format(now);
+        maxReleaseDate = dateFormat.format(now);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
                             return movieEntities;
                         });
             case LATEST:
-                return movieService.getLatestMovies(maxRealeaseDate, page)
+                return movieService.getLatestMovies(maxReleaseDate, page)
                         .map(MoviesWrapper::getMovieList)
                         .map(movieEntities -> {
                             for (int i = 0; i < movieEntities.size(); i++) {
@@ -79,7 +79,7 @@ public class MoviesRemoteDataSource implements MoviesDataSource {
         String baseImageUrl = Constants.TMDB_IMAGE_BASE_URL;
         Uri.Builder builder = Uri.parse(baseImageUrl).buildUpon();
         builder.appendEncodedPath(Constants.DEFAULT_POSTER_SIZE);
-        if (!movieEntity.getPosterPath().isEmpty()) {
+        if (movieEntity.getPosterPath() != null && !movieEntity.getPosterPath().isEmpty()) {
             builder.appendEncodedPath(movieEntity.getPosterPath());
             movieEntity.setPosterUrl(builder.toString());
         }

@@ -18,6 +18,11 @@
                     android:id="@+id/top_rated_filter_menu"
                     android:title="@string/user_rating"
                     app:showAsAction="never" />
+
+                <item
+                    android:id="@+id/latest_filter_menu"
+                    android:title="@string/latest"
+                    app:showAsAction="never"/>
                 <item android:id="@+id/favorites_filter_menu"
                     android:title="@string/favorites_filter_menu"
                     app:showAsAction="never"/>

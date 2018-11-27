@@ -185,6 +185,9 @@ public class MoviesFragment extends Fragment {
             case FAVORITES:
                 menu.findItem(R.id.favorites_filter_menu).setChecked(true);
                 break;
+            case LATEST:
+                menu.findItem(R.id.latest_filter_menu).setChecked(true);
+                break;
         }
     }
 
@@ -215,6 +218,11 @@ public class MoviesFragment extends Fragment {
                     reloadMovies();
                 }
                 break;
+            case R.id.latest_filter_menu:
+                setFiltering(LATEST);
+                if (!item.isChecked()) {
+                    reloadMovies();
+                }
         }
         // Finally check the item
         item.setChecked(true);
