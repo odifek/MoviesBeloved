@@ -11,3 +11,13 @@
 /build
 /captures
 .externalNativeBuild
+.idea/
+caches
+codeStyles
+gradle.xml
+libraries
+misc.xml
+modules.xml
+runConfigurations.xml
+vcs.xml
+workspace.xml
