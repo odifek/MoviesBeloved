@@ -1,22 +1,26 @@
 package com.techbeloved.moviesbeloved.movies;
 
 import androidx.databinding.Observable;
-import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
-import androidx.databinding.ObservableInt;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import androidx.paging.PagedList;
+import androidx.paging.RxPagedListBuilder;
+
 import com.techbeloved.moviesbeloved.MovieFilterType;
 import com.techbeloved.moviesbeloved.common.viewmodel.Response;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.data.source.MoviesRepository;
 import com.techbeloved.moviesbeloved.rx.SchedulersFacade;
+
+import io.reactivex.ObservableTransformer;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.PublishSubject;
 import timber.log.Timber;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MoviesViewModel extends ViewModel {
 
@@ -24,20 +28,17 @@ public class MoviesViewModel extends ViewModel {
     private final ObservableField<MovieFilterType> filterTypeObservable =
             new ObservableField<>(MovieFilterType.POPULAR);
 
-    private final ObservableInt currentPage = new ObservableInt(1);
-
-    private final ObservableBoolean shouldLoadNext = new ObservableBoolean(true);
-
     private final MoviesRepository mMoviesRepository;
 
     private final SchedulersFacade schedulersFacade;
 
     private final CompositeDisposable disposables = new CompositeDisposable();
 
-    private final MutableLiveData<Response<List<MovieEntity>>> response =
+    private final MutableLiveData<Response<PagedList<MovieEntity>>> response =
             new MutableLiveData<>();
     // We use this to collect paginated data
-    private final MutableLiveData<Response<List<MovieEntity>>> movieCollectionResponse = new MutableLiveData<>();
+
+    private final PublishSubject<MovieFilterType> filterSubject = PublishSubject.create();
 
     @Inject
     public MoviesViewModel(MoviesRepository moviesRepository,
@@ -45,35 +46,16 @@ public class MoviesViewModel extends ViewModel {
         this.mMoviesRepository = moviesRepository;
         this.schedulersFacade = schedulersFacade;
 
-        // Initialise the movie collection
-        movieCollectionResponse.setValue(Response.loading());
-
         filterTypeObservable.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
             @Override
             public void onPropertyChanged(Observable sender, int propertyId) {
-                reloadMovies();
-            }
-        });
-
-        currentPage.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
-            @Override
-            public void onPropertyChanged(Observable sender, int propertyId) {
-                if (shouldLoadNext.get()) {
-                    disposables.clear();
-                    loadNextPage();
-                }
+                filterSubject.onNext(getCurrentFilter());
             }
         });
 
         loadMovies();
     }
 
-    private void loadNextPage() {
-        Timber.i("LoadNextPage - did I get called?");
-        if (getCurrentFilter() != MovieFilterType.FAVORITES) {
-            loadMovies();
-        }
-    }
 
     @Override
     protected void onCleared() {
@@ -81,90 +63,66 @@ public class MoviesViewModel extends ViewModel {
         disposables.clear();
     }
 
-    MutableLiveData<Response<List<MovieEntity>>> response() {
+    LiveData<Response<PagedList<MovieEntity>>> response() {
         return response;
     }
 
-    MutableLiveData<Response<List<MovieEntity>>> getMovieCollectionResponse() {
-        return movieCollectionResponse;
-    }
-
-    private void reloadMovies() {
-        // Reset collection
-        movieCollectionResponse.setValue(Response.loading());
-        disposables.clear();
-        // This should trigger loadNextPage which succeeds only if online movie
-        // case requested and current page is above 1
-        if (getCurrentFilter() == MovieFilterType.FAVORITES || currentPage.get() == 1) {
-            loadMovies();
-        } else {
-            resetPage();
-        }
-    }
-
-    private void resetPage() {
-        currentPage.set(1);
-    }
-
+    /**
+     * Load the movies according to the filter supplied. Request for favorites is forwarded to the data source that handles local data,
+     * while non -favorites request are forwarded to the corresponding online data source
+     */
     private void loadMovies() {
-        Timber.i("Observing some data");
-
-        disposables.add(mMoviesRepository.getMovies(getCurrentFilter(), currentPage.get())
+        Disposable disposable = filterSubject
+                .startWith(getCurrentFilter())
+                .publish(filterType -> io.reactivex.Observable.merge(
+                        filterType.filter(type -> type == MovieFilterType.FAVORITES).compose(getFavoriteMovies()),
+                        filterType.filter(type -> type != MovieFilterType.FAVORITES).compose(getOnlineMovies())
+                ))
                 .subscribeOn(schedulersFacade.io())
                 .observeOn(schedulersFacade.ui())
-                .doOnSubscribe(__ -> response.setValue(Response.loading()))
-                .subscribe(
-                        movieEntities -> {
-                            Timber.i("New data coming in viewmodel of length - %s", movieEntities.size());
-                            response.setValue(Response.success(movieEntities));
-                            addToMoviesCollection(movieEntities);
-                        },
-                        throwable -> {
-                            response.setValue(Response.error(throwable));
-                            // We didn't get any data, reset the currentPage to previous
-                            // set current page triggers a reload, we tell it to not query again if on error
-                            currentPage.set(currentPage.get() > 1 ? currentPage.get() - 1 : 1);
-                            shouldLoadNext.set(false);
-                        }
-                )
-        );
+                .subscribe(response::setValue,
+                        throwable -> response.postValue(Response.error(throwable)));
+
+        disposables.add(disposable);
+    }
+
+    private ObservableTransformer<MovieFilterType, Response<PagedList<MovieEntity>>> getOnlineMovies() {
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(60)
+                .build();
+        return upstream -> upstream.switchMap(filter -> new RxPagedListBuilder<>(
+                new MoviesPagingDataSource.MoviesPagingFactory(getCurrentFilter(), mMoviesRepository),
+                config)
+                .buildObservable()
+                .map(Response::success)
+                .startWith(Response.loading()));
+    }
+
+    private ObservableTransformer<MovieFilterType, Response<PagedList<MovieEntity>>> getFavoriteMovies() {
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPageSize(20)
+                .build();
+
+        return upstream -> upstream.switchMap(filter -> new RxPagedListBuilder<>(
+                new FavoritesDataSource.FavoritesDataSourceFactory(mMoviesRepository),
+                config
+        ).buildObservable()
+                .map(Response::success)
+                .startWith(Response.loading()));
     }
 
     private MovieFilterType getCurrentFilter() {
         return filterTypeObservable.get();
     }
 
-    public void setFilterType(MovieFilterType filterType) {
+    void setFilterType(MovieFilterType filterType) {
         filterTypeObservable.set(filterType);
     }
 
-    private void addToMoviesCollection(List<MovieEntity> movies) {
-//        Objects.requireNonNull(Objects.requireNonNull(movieCollectionResponse.getValue()).data).addAll(movies);
-        // This triggers the observers to do something. Only set value can do that!
-        Response<List<MovieEntity>> listResponse = movieCollectionResponse.getValue();
-        List<MovieEntity> movieEntityList = listResponse.data;
-        if (movieEntityList == null) {
-            movieEntityList = new ArrayList<>();
-        }
-        movieEntityList.addAll(movies);
 
-        movieCollectionResponse.setValue(Response.success(movieEntityList));
-    }
-
-    public MovieFilterType getFiltering() {
+    MovieFilterType getFiltering() {
         return getCurrentFilter();
-    }
-
-    public void setNextPage(int page) {
-        currentPage.set(page);
-    }
-
-    public int getCurrentPage() {
-        return currentPage.get();
-    }
-
-    // View can calls this when it specifically request for next page through page scrolling
-    public void setShouldLoadNextPage(boolean shouldLoadNext) {
-        this.shouldLoadNext.set(shouldLoadNext);
     }
 }

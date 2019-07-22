@@ -3,28 +3,37 @@ package com.techbeloved.moviesbeloved.moviedetails;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+
 import com.google.android.material.snackbar.Snackbar;
+import com.techbeloved.moviesbeloved.MoviesApp;
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.YoutubePlayerActivity;
 import com.techbeloved.moviesbeloved.common.viewmodel.Response;
-import com.techbeloved.moviesbeloved.data.models.*;
+import com.techbeloved.moviesbeloved.data.models.Movie;
+import com.techbeloved.moviesbeloved.data.models.MovieEntity;
+import com.techbeloved.moviesbeloved.data.models.ReviewEntity;
+import com.techbeloved.moviesbeloved.data.models.VideoEntity;
 import com.techbeloved.moviesbeloved.databinding.ActivityMovieDetailBinding;
 import com.techbeloved.moviesbeloved.moviedetails.reviews.ReviewAdapter;
 import com.techbeloved.moviesbeloved.moviedetails.videos.VideoAdapter;
 import com.techbeloved.moviesbeloved.moviedetails.videos.VideoClickCallback;
 import com.techbeloved.moviesbeloved.utils.Constants;
-import dagger.android.support.DaggerAppCompatActivity;
-import timber.log.Timber;
+
+import java.util.List;
 
 import javax.inject.Inject;
-import java.util.List;
+
+import timber.log.Timber;
 
 import static com.techbeloved.moviesbeloved.utils.Constants.MOVIE_ID_EXTRA;
 
-public class MovieDetailActivity extends DaggerAppCompatActivity {
+public class MovieDetailActivity extends AppCompatActivity {
 
     private static final String TAG = MovieDetailActivity.class.getSimpleName();
 
@@ -36,12 +45,9 @@ public class MovieDetailActivity extends DaggerAppCompatActivity {
         }
     };
 
-    private VideoClickCallback mVideoOnclickListener = new VideoClickCallback() {
-        @Override
-        public void onClick(Video video) {
-            Timber.i("video onClick was called!");
-            openPlayer(video.getKey());
-        }
+    private VideoClickCallback mVideoOnclickListener = video -> {
+        Timber.i("video onClick was called!");
+        openPlayer(video.getKey());
     };
 
     private ReviewAdapter mReviewAdapter;
@@ -52,7 +58,7 @@ public class MovieDetailActivity extends DaggerAppCompatActivity {
     private MovieDetailViewModel mViewModel;
 
     @Inject
-    public MovieDetailViewModelFactory mViewModelFactory;
+    public ViewModelProvider.Factory mViewModelFactory;
 
     //    @Inject
     public int movieId;
@@ -62,10 +68,13 @@ public class MovieDetailActivity extends DaggerAppCompatActivity {
         super.onCreate(savedInstanceState);
         mBinding =
                 DataBindingUtil.setContentView(this, R.layout.activity_movie_detail);
+        ((MoviesApp)getApplication()).getAppComponent().inject(this);
 
         Toolbar toolbar = mBinding.toolbar;
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         final Intent movieIntent = getIntent();
         if (movieIntent.hasExtra(MOVIE_ID_EXTRA)) {

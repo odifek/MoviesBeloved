@@ -1,18 +1,14 @@
 package com.techbeloved.moviesbeloved.movies;
 
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import com.techbeloved.moviesbeloved.R;
 import com.techbeloved.moviesbeloved.utils.ActivityUtils;
-import dagger.Lazy;
-import dagger.android.support.DaggerAppCompatActivity;
 
-import javax.inject.Inject;
-
-public class MoviesActivity extends DaggerAppCompatActivity {
-
-    @Inject
-    Lazy<MoviesFragment> moviesFragmentProvider;
+public class MoviesActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,17 +22,11 @@ public class MoviesActivity extends DaggerAppCompatActivity {
                 (MoviesFragment) getSupportFragmentManager().findFragmentById(R.id.contentFrame);
         if (moviesFragment == null) {
             // Create the fragment
-            moviesFragment = moviesFragmentProvider.get();
+            moviesFragment = new MoviesFragment();
             ActivityUtils.addFragmentToActivity(
                     getSupportFragmentManager(), moviesFragment, R.id.contentFrame
             );
         }
 
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-//        outState.putSerializable(CURRENT_FILTERING_KEY, mMoviesPresenter.getFiltering());
-        super.onSaveInstanceState(outState);
     }
 }

@@ -99,8 +99,8 @@ dependencies {
     implementation 'com.google.dagger:dagger:2.23'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.23'
     implementation 'com.google.dagger:dagger-android:2.21'
-    annotationProcessor 'com.google.dagger:dagger-android-processor:2.17'
-    implementation 'com.google.dagger:dagger-android-support:2.21'
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.23'
+
 
     def paging_version = "2.1.0"
 

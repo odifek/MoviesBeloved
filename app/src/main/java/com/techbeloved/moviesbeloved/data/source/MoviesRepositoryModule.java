@@ -1,17 +1,25 @@
 package com.techbeloved.moviesbeloved.data.source;
 
-import android.app.Application;
+import android.content.Context;
+
 import androidx.room.Room;
-import com.techbeloved.moviesbeloved.data.source.local.*;
+
+import com.techbeloved.moviesbeloved.data.source.local.FavoriteDatabase;
+import com.techbeloved.moviesbeloved.data.source.local.MoviesDao;
+import com.techbeloved.moviesbeloved.data.source.local.MoviesLocalDataSource;
+import com.techbeloved.moviesbeloved.data.source.local.ReviewsDao;
+import com.techbeloved.moviesbeloved.data.source.local.VideosDao;
 import com.techbeloved.moviesbeloved.data.source.remote.MoviesRemoteDataSource;
 import com.techbeloved.moviesbeloved.utils.AppExecutors;
 import com.techbeloved.moviesbeloved.utils.DiskIOThreadExecutor;
+
+import java.util.concurrent.Executors;
+
+import javax.inject.Singleton;
+
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
-
-import javax.inject.Singleton;
-import java.util.concurrent.Executors;
 
 @Module
 public abstract class MoviesRepositoryModule {
@@ -30,8 +38,8 @@ public abstract class MoviesRepositoryModule {
 
     @Singleton
     @Provides
-    static FavoriteDatabase provideDb(Application context) {
-        return Room.databaseBuilder(context.getApplicationContext(), FavoriteDatabase.class, "Movies.db")
+    static FavoriteDatabase provideDb(Context context) {
+        return Room.databaseBuilder(context, FavoriteDatabase.class, "Movies.db")
                 .build();
     }
 

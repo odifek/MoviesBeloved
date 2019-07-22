@@ -1,60 +1,42 @@
 package com.techbeloved.moviesbeloved.movies;
 
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
+import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.techbeloved.moviesbeloved.R;
-import com.techbeloved.moviesbeloved.data.models.Movie;
 import com.techbeloved.moviesbeloved.data.models.MovieEntity;
 import com.techbeloved.moviesbeloved.databinding.MovieItemBinding;
 
-import java.util.ArrayList;
-import java.util.List;
+import timber.log.Timber;
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
-    protected List<MovieEntity> mMovieList = new ArrayList<>();
+public class MovieAdapter extends PagedListAdapter<MovieEntity, MovieAdapter.MovieViewHolder> {
     private final MovieClickCallback mMovieClickCallback;
 
-    public MovieAdapter(MovieClickCallback clickCallback) {
-        this.mMovieClickCallback = clickCallback;
-    }
+    private static final DiffUtil.ItemCallback<MovieEntity> MOVIE_ENTITY_ITEM_CALLBACK = new DiffUtil.ItemCallback<MovieEntity>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull MovieEntity oldItem, @NonNull MovieEntity newItem) {
+            return oldItem.getId() == newItem.getId();
+        }
 
-    public void updateMovieList(final List<MovieEntity> movieList) {
-        if (movieList != null) {
-            if (mMovieList.isEmpty()) {
-                mMovieList.addAll(movieList);
-                notifyDataSetChanged();
+        @Override
+        public boolean areContentsTheSame(@NonNull MovieEntity oldItem, @NonNull MovieEntity newItem) {
+            if (oldItem.getTitle() != null) {
+                return oldItem.getTitle().equals(newItem.getTitle());
             } else {
-                updateItemsInternal(movieList);
+                return false;
             }
         }
-    }
+    };
 
-    private void updateItemsInternal(final List<MovieEntity> newMovies) {
-        final List<MovieEntity> oldItems = new ArrayList<>(this.mMovieList);
-
-        final MovieDiffCallback diffCallback = new MovieDiffCallback(oldItems, newMovies);
-
-        final Handler handler = new Handler();
-        new Thread(() -> {
-            final DiffUtil.DiffResult diffResult =
-                    DiffUtil.calculateDiff(diffCallback);
-            handler.post(() -> applyDiffResult(newMovies, diffResult));
-        }).start();
-    }
-
-    private void applyDiffResult(List<MovieEntity> newMovies, DiffUtil.DiffResult diffResult) {
-        dispatchUpdates(newMovies, diffResult);
-    }
-
-    private void dispatchUpdates(List<MovieEntity> newMovies, DiffUtil.DiffResult diffResult) {
-        mMovieList.clear();
-        mMovieList.addAll(newMovies);
-        diffResult.dispatchUpdatesTo(this);
+    MovieAdapter(MovieClickCallback clickCallback) {
+        super(MOVIE_ENTITY_ITEM_CALLBACK);
+        this.mMovieClickCallback = clickCallback;
     }
 
     @NonNull
@@ -69,25 +51,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        holder.binding.setMovie(mMovieList.get(position));
-        holder.binding.executePendingBindings();
-    }
-
-    @Override
-    public int getItemCount() {
-        return mMovieList != null ? mMovieList.size() : 0;
-    }
-
-    private Movie getItem(int position) {
-        return mMovieList.get(position);
-    }
-
-    public void clear() {
-        if (mMovieList != null) {
-            mMovieList.clear();
-            notifyDataSetChanged();
+        if (position == 19) {
+            Timber.i("About last item");
         }
-
+        holder.binding.setMovie(getItem(position));
+        holder.binding.executePendingBindings();
     }
 
     class MovieViewHolder extends RecyclerView.ViewHolder {
