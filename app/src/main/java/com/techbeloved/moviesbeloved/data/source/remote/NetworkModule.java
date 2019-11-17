@@ -1,11 +1,14 @@
 package com.techbeloved.moviesbeloved.data.source.remote;
 
 import android.content.Context;
+
 import com.google.gson.GsonBuilder;
 import com.techbeloved.moviesbeloved.BuildConfig;
 import com.techbeloved.moviesbeloved.data.source.remote.api.TMDBMovieService;
 import com.techbeloved.moviesbeloved.utils.Constants;
 import com.techbeloved.moviesbeloved.utils.NetworkUtils;
+
+import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 import okhttp3.*;
@@ -15,8 +18,12 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import javax.inject.Named;
+import javax.inject.Qualifier;
 import javax.inject.Singleton;
+
 import java.io.File;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
 
 @Module
@@ -29,9 +36,15 @@ public class NetworkModule {
 //        return interceptor;
 //    }
 
-    @Singleton
+    @Qualifier
+    @Retention(RetentionPolicy.CLASS)
+    private @interface InternalApi {
+    }
+
+
     @Provides
-    static OkHttpClient providesOkhttp(Interceptor cacheControlInterceptor, @Named("http_cache") Cache httpCacheFile) {
+    @InternalApi
+    static OkHttpClient providesOkhttp(@InternalApi Interceptor cacheControlInterceptor, @Named("http_cache") Cache httpCacheFile) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(CONNECT_TIMEOUT_IN_MS, TimeUnit.MILLISECONDS)
                 .addInterceptor(chain -> {
@@ -57,10 +70,10 @@ public class NetworkModule {
 
     @Singleton
     @Provides
-    static Retrofit providesRetrofit(OkHttpClient client) {
+    static Retrofit providesRetrofit(@InternalApi Lazy<OkHttpClient> client) {
         return new Retrofit.Builder()
                 .baseUrl(Constants.TMDB_API_BASE_URL)
-                .client(client)
+                .callFactory(request -> client.get().newCall(request))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
                         .setDateFormat("yyyy-MM-dd")
@@ -68,14 +81,8 @@ public class NetworkModule {
                 .build();
     }
 
-    @Singleton
     @Provides
-    static TMDBMovieService providesTmdbMovieService(Retrofit retrofit) {
-        return retrofit.create(TMDBMovieService.class);
-    }
-
-    @Singleton
-    @Provides
+    @InternalApi
     static Interceptor REWRITE_CACHE_CONTROL_INTERCEPTOR() {
         return chain -> {
             Response originalResponse = chain.proceed(chain.request());
@@ -94,6 +101,11 @@ public class NetworkModule {
     }
 
     @Singleton
+    @Provides
+    static TMDBMovieService providesTmdbMovieService(Retrofit retrofit) {
+        return retrofit.create(TMDBMovieService.class);
+    }
+
     @Provides
     @Named("http_cache")
     static Cache providesLocalCache(Context context) {
